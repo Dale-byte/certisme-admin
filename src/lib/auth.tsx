@@ -4,7 +4,7 @@ import { ADMIN_EMAIL, GOOGLE_CLIENT_ID, apiRequest, errorMessage } from "./api";
 const STORAGE_KEY = "certisme-admin-session";
 const MAX_SESSION_MS = 24 * 60 * 60 * 1000;
 
-export type AdminUser = { email: string; name?: string; picture?: string };
+export type AdminUser = { email: string; name?: string | undefined; picture?: string | undefined };
 
 type Session = { token: string; issuedAt: number; user: AdminUser };
 

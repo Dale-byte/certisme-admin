@@ -2,8 +2,8 @@ export type Framework = {
   id: string;
   name: string;
   full_name: string;
-  description?: string;
-  color?: string;
+  description?: string | undefined;
+  color?: string | undefined;
 };
 
 export type Product = {
@@ -19,9 +19,9 @@ export type Product = {
 
 export type DocumentStatus = {
   product_id: string;
-  file?: string;
-  size?: number;
-  uploaded_at?: string;
+  file?: string | undefined;
+  size?: number | undefined;
+  uploaded_at?: string | undefined;
   present: boolean;
 };
 
@@ -29,22 +29,22 @@ export type SiteSettings = {
   site_name: string;
   site_url: string;
   contact_email: string;
-  merchant_id_set?: boolean;
-  merchant_key_set?: boolean;
+  merchant_id_set?: boolean | undefined;
+  merchant_key_set?: boolean | undefined;
 };
 
 export type DeployResponse = {
-  commit_url?: string;
-  commit_sha?: string;
-  run_id?: string | number;
-  message?: string;
+  commit_url?: string | undefined;
+  commit_sha?: string | undefined;
+  run_id?: string | number | undefined;
+  message?: string | undefined;
 };
 
 export type DeployStatus = {
-  status?: string;
-  conclusion?: string | null;
-  html_url?: string;
-  updated_at?: string;
+  status?: string | undefined;
+  conclusion?: string | null | undefined;
+  html_url?: string | undefined;
+  updated_at?: string | undefined;
 };
 
 export type AuditEntry = {
@@ -52,5 +52,5 @@ export type AuditEntry = {
   author: string;
   date: string;
   message: string;
-  url?: string;
+  url?: string | undefined;
 };

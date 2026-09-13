@@ -75,7 +75,7 @@ export async function apiRequest<T>(path: string, opts: RequestOptions): Promise
 
   let res: Response;
   try {
-    res = await fetch(url.toString(), { method: opts.method ?? "GET", headers, body });
+    res = await fetch(url.toString(), { method: opts.method ?? "GET", headers, body: body ?? null });
   } catch {
     throw new ApiError(humanize(0), 0);
   }
