@@ -1,24 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { LoginScreen } from "@/components/admin/LoginScreen";
+import { Dashboard } from "@/components/admin/Dashboard";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const title = "CertiSME Admin — Storefront content control";
+const description =
+  "Private admin dashboard for managing CertiSME storefront products, frameworks, documents, images and publishing.";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <AuthProvider>
+      <Gate />
+    </AuthProvider>
   );
+}
+
+function Gate() {
+  const { status } = useAuth();
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-charcoal">
+        <p className="flex items-center gap-2 text-sm text-white/70">
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+          Checking your access…
+        </p>
+      </div>
+    );
+  }
+
+  if (status === "signed-in") return <Dashboard />;
+  return <LoginScreen />;
 }
