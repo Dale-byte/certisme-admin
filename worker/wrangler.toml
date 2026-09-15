@@ -1,0 +1,22 @@
+name = "certisme-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+[vars]
+# Public (non-secret) configuration
+GITHUB_OWNER = "your-github-username"
+GITHUB_REPO = "your-storefront-repo"
+GITHUB_BRANCH = "main"
+CATALOG_PATH = "catalog.yaml"
+DOCUMENTS_DIR = "documents"
+IMAGES_DIR = "public/product-images"
+DEPLOY_WORKFLOW = "deploy.yml"
+ALLOWED_ORIGINS = "http://localhost:8080,https://your-admin-dashboard-url"
+ADMIN_USERNAME = "admin"
+
+# Secrets — set with: wrangler secret put <NAME>
+#   GITHUB_TOKEN         fine-grained PAT with Contents: read/write + Actions: read/write
+#   SESSION_SECRET       any long random string (openssl rand -hex 32)
+#   ADMIN_PASSWORD_HASH  sha256 hex of your password
+#   MERCHANT_ID          optional, PayFast merchant id
+#   MERCHANT_KEY         optional, PayFast merchant key
