@@ -1,49 +1,23 @@
-import { useEffect, useRef } from "react";
-import { API_BASE_URL, GOOGLE_CLIENT_ID } from "@/lib/api";
+import { useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { InlineError, Panel } from "./primitives";
+import { FieldLabel, InlineError, Panel } from "./primitives";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 
 export function LoginScreen() {
-  const { signInWithCredential, error, status, signOut } = useAuth();
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const { signIn, error, status } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const busy = status === "loading";
 
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
-    let cancelled = false;
-
-    const render = () => {
-      const id = window.google?.accounts?.id;
-      if (!id || !buttonRef.current || cancelled) return false;
-      id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: (res) => {
-          if (res.credential) void signInWithCredential(res.credential);
-        },
-        auto_select: false,
-      });
-      id.renderButton(buttonRef.current, {
-        theme: "outline",
-        size: "large",
-        text: "signin_with",
-        width: 280,
-        shape: "rectangular",
-      });
-      return true;
-    };
-
-    if (render()) return;
-    const interval = window.setInterval(() => {
-      if (render()) window.clearInterval(interval);
-    }, 300);
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [signInWithCredential]);
-
-  const unauthorized = status === "unauthorized";
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!username.trim() || !password) return;
+    await signIn(username.trim(), password);
+    setPassword("");
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-charcoal px-4 py-12">
@@ -56,52 +30,55 @@ export function LoginScreen() {
         </div>
 
         <Panel className="bg-background">
-          {unauthorized ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-charcoal">
-                <ShieldCheck className="size-5 text-destructive" aria-hidden />
-                <h2 className="text-base font-bold">You are not authorized</h2>
-              </div>
-              <p className="text-sm text-slate">
-                This account cannot manage the CertiSME storefront. Sign in with the approved
-                administrator account, or ask for access to be granted on the API.
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <div>
+              <h1 className="text-base font-bold text-charcoal">Sign in to continue</h1>
+              <p className="mt-1 text-sm text-slate">
+                Use your administrator username and password. Every change you make is recorded as a
+                commit.
               </p>
-              <InlineError message={error} />
-              <Button onClick={() => signOut()} className="w-full">
-                Try a different account
-              </Button>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-base font-bold text-charcoal">Sign in to continue</h2>
-                <p className="mt-1 text-sm text-slate">
-                  Access is limited to the single approved administrator account. Every change you
-                  make is recorded as a commit.
-                </p>
-              </div>
 
-              <InlineError message={error} />
+            <InlineError message={error} />
 
-              {GOOGLE_CLIENT_ID ? (
-                <div className="flex justify-center pt-1">
-                  <div ref={buttonRef} />
-                </div>
-              ) : (
-                <div className="border border-dashed border-border bg-bg-alt p-4 text-sm text-slate">
-                  Google sign-in is not configured yet. Add your Google client ID as
-                  <code className="mx-1 bg-background px-1 py-0.5 text-xs">VITE_GOOGLE_CLIENT_ID</code>
-                  and reload.
-                </div>
-              )}
-
-              {!API_BASE_URL ? (
-                <p className="text-xs text-destructive">
-                  The API address is missing. Set VITE_API_BASE_URL before signing in.
-                </p>
-              ) : null}
+            <div className="space-y-1.5">
+              <FieldLabel htmlFor="username">Username or email</FieldLabel>
+              <Input
+                id="username"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                disabled={busy}
+              />
             </div>
-          )}
+
+            <div className="space-y-1.5">
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={busy}
+              />
+            </div>
+
+            <Button type="submit" className="w-full" disabled={busy}>
+              {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+              {busy ? "Signing in…" : "Sign in"}
+            </Button>
+
+            {!API_BASE_URL ? (
+              <p className="text-xs text-destructive">
+                The API address is missing. Set VITE_API_BASE_URL before signing in.
+              </p>
+            ) : null}
+          </form>
         </Panel>
 
         <p className="mt-4 text-center text-xs text-white/45">
