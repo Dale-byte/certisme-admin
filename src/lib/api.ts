@@ -5,7 +5,6 @@
 
 export const API_BASE_URL = (import.meta.env["VITE_API_BASE_URL"] ?? "").replace(/\/$/, "");
 export const ADMIN_EMAIL = import.meta.env["VITE_ADMIN_EMAIL"] ?? "";
-export const GOOGLE_CLIENT_ID = import.meta.env["VITE_GOOGLE_CLIENT_ID"] ?? "";
 export const SITE_BASE_URL = (
   import.meta.env["VITE_SITE_BASE_URL"] ?? "https://certisme.co.za"
 ).replace(/\/$/, "");
@@ -62,7 +61,8 @@ export async function apiRequest<T>(path: string, opts: RequestOptions): Promise
   const url = new URL(`${API_BASE_URL}${path}`);
   for (const [k, v] of Object.entries(opts.query ?? {})) url.searchParams.set(k, v);
 
-  const headers: Record<string, string> = { Authorization: `Bearer ${opts.token}` };
+  const headers: Record<string, string> = {};
+  if (opts.token) headers["Authorization"] = `Bearer ${opts.token}`;
   let body: BodyInit | undefined;
 
   if (opts.rawBody !== undefined) {

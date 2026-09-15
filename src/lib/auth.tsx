@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ADMIN_EMAIL, GOOGLE_CLIENT_ID, apiRequest, errorMessage } from "./api";
+import { apiRequest, errorMessage } from "./api";
 
 const STORAGE_KEY = "certisme-admin-session";
 const MAX_SESSION_MS = 24 * 60 * 60 * 1000;
@@ -13,30 +13,11 @@ type AuthState = {
   user: AdminUser | null;
   token: string | null;
   error: string | null;
-  signInWithCredential: (idToken: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<void>;
   signOut: (reason?: string) => void;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
-
-function decodeEmail(idToken: string): AdminUser | null {
-  try {
-    const payload = idToken.split(".")[1];
-    if (!payload) return null;
-    const json = JSON.parse(
-      decodeURIComponent(
-        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
-          .split("")
-          .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
-          .join(""),
-      ),
-    ) as { email?: string; name?: string; picture?: string };
-    if (!json.email) return null;
-    return { email: json.email, name: json.name, picture: json.picture };
-  } catch {
-    return null;
-  }
-}
 
 function loadSession(): Session | null {
   try {
@@ -62,7 +43,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback((reason?: string) => {
     try {
       localStorage.removeItem(STORAGE_KEY);
-      window.google?.accounts?.id?.disableAutoSelect?.();
     } catch {
       /* storage unavailable */
     }
@@ -71,38 +51,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(reason ?? null);
   }, []);
 
-  const verify = useCallback(
-    async (token: string, user: AdminUser, issuedAt: number) => {
-      if (ADMIN_EMAIL && user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-        setSession(null);
-        setStatus("unauthorized");
-        setError("This Google account is not the configured administrator account.");
-        return;
-      }
-      try {
-        const me = await apiRequest<{ email?: string; name?: string; picture?: string }>(
-          "/auth/me",
-          { token },
-        );
-        const confirmed: AdminUser = {
-          email: me?.email ?? user.email,
-          name: me?.name ?? user.name,
-          picture: me?.picture ?? user.picture,
-        };
-        const next: Session = { token, issuedAt, user: confirmed };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        setSession(next);
-        setStatus("signed-in");
-        setError(null);
-      } catch (err) {
-        localStorage.removeItem(STORAGE_KEY);
-        setSession(null);
-        setStatus("unauthorized");
-        setError(errorMessage(err));
-      }
-    },
-    [],
-  );
+  /** Confirms a stored token is still valid via GET /auth/me. */
+  const verify = useCallback(async (token: string, user: AdminUser, issuedAt: number) => {
+    try {
+      const me = await apiRequest<{ email?: string; name?: string; picture?: string }>("/auth/me", {
+        token,
+      });
+      const confirmed: AdminUser = {
+        email: me?.email ?? user.email,
+        name: me?.name ?? user.name,
+        picture: me?.picture ?? user.picture,
+      };
+      const next: Session = { token, issuedAt, user: confirmed };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      setSession(next);
+      setStatus("signed-in");
+      setError(null);
+    } catch (err) {
+      localStorage.removeItem(STORAGE_KEY);
+      setSession(null);
+      setStatus("signed-out");
+      setError(errorMessage(err));
+    }
+  }, []);
 
   useEffect(() => {
     const existing = loadSession();
@@ -124,19 +95,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.clearTimeout(timer);
   }, [session, signOut]);
 
-  const signInWithCredential = useCallback(
-    async (idToken: string) => {
-      const user = decodeEmail(idToken);
-      if (!user) {
+  const signIn = useCallback(async (username: string, password: string) => {
+    setStatus("loading");
+    setError(null);
+    try {
+      const res = await apiRequest<{
+        token?: string;
+        access_token?: string;
+        user?: { email?: string; name?: string };
+      }>("/auth/login", {
+        method: "POST",
+        token: "",
+        body: { username, email: username, password },
+      });
+      const token = res?.token ?? res?.access_token ?? "";
+      if (!token) {
         setStatus("signed-out");
-        setError("Google sign-in did not return a usable account.");
+        setError("Sign-in did not return a session. Please try again.");
         return;
       }
-      setStatus("loading");
-      await verify(idToken, user, Date.now());
-    },
-    [verify],
-  );
+      const issuedAt = Date.now();
+      const user: AdminUser = {
+        email: res.user?.email ?? username,
+        name: res.user?.name,
+      };
+      const next: Session = { token, issuedAt, user };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      setSession(next);
+      setStatus("signed-in");
+    } catch (err) {
+      setSession(null);
+      setStatus("signed-out");
+      setError(errorMessage(err));
+    }
+  }, []);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -144,10 +136,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user: session?.user ?? null,
       token: session?.token ?? null,
       error,
-      signInWithCredential,
+      signIn,
       signOut,
     }),
-    [status, session, error, signInWithCredential, signOut],
+    [status, session, error, signIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -163,24 +155,4 @@ export function useAuth(): AuthState {
 export function useToken(): string {
   const { token } = useAuth();
   return token ?? "";
-}
-
-export { GOOGLE_CLIENT_ID };
-
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        id?: {
-          initialize: (config: {
-            client_id: string;
-            callback: (res: { credential?: string }) => void;
-            auto_select?: boolean;
-          }) => void;
-          renderButton: (el: HTMLElement, opts: Record<string, unknown>) => void;
-          disableAutoSelect?: () => void;
-        };
-      };
-    };
-  }
 }

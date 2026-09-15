@@ -11,7 +11,7 @@ them to a GitHub repository. **The app holds no secrets.**
 ### Routing / shell
 | File | Purpose |
 | --- | --- |
-| `src/routes/__root.tsx` | HTML shell. Loads Plus Jakarta Sans, the Google Identity Services script (`accounts.google.com/gsi/client`), the stylesheet, and mounts `<Toaster />` (sonner). |
+| `src/routes/__root.tsx` | HTML shell. Loads Plus Jakarta Sans, the stylesheet, and mounts `<Toaster />` (sonner). |
 | `src/routes/index.tsx` | The whole app lives at `/`. Wraps everything in `AuthProvider`, then `Gate`: loading → spinner, `signed-in` → `Dashboard`, otherwise → `LoginScreen`. Sets `noindex, nofollow` metadata. |
 | `src/router.tsx` | TanStack Router + React Query client (unchanged template). |
 | `src/styles.css` | Design system: exact storefront palette as oklch tokens (`charcoal`, `charcoal-mid`, `slate`, `coral`, `coral-dark`, `coral-pale`, `coral-border`, `brand-blue`, `navy`, `bg-alt`), 2px radius everywhere, Plus Jakarta Sans, plus `panel` and `label-caps` utilities. |
@@ -19,15 +19,15 @@ them to a GitHub repository. **The app holds no secrets.**
 ### Library
 | File | Purpose |
 | --- | --- |
-| `src/lib/api.ts` | API client. Exports `API_BASE_URL`, `ADMIN_EMAIL`, `GOOGLE_CLIENT_ID`, `SITE_BASE_URL`, `ApiError`, `apiRequest` (JSON, bearer token, human-readable errors), `apiUpload` (XHR upload with progress), `errorMessage`. |
-| `src/lib/auth.tsx` | `AuthProvider`, `useAuth`, `useToken`. Google credential → optional client-side admin-email check → `GET /auth/me` verification → session stored in `localStorage` (`certisme-admin-session`) with a hard 24-hour expiry and an in-tab auto sign-out timer. |
+| `src/lib/api.ts` | API client. Exports `API_BASE_URL`, `ADMIN_EMAIL`, `SITE_BASE_URL`, `ApiError`, `apiRequest` (JSON, bearer token, human-readable errors), `apiUpload` (XHR upload with progress), `errorMessage`. |
+| `src/lib/auth.tsx` | `AuthProvider`, `useAuth`, `useToken`. Username/password → `POST /auth/login` → session stored in `localStorage` (`certisme-admin-session`) with a hard 24-hour expiry and an in-tab auto sign-out timer. |
 | `src/lib/types.ts` | `Framework`, `Product`, `DocumentStatus`, `SiteSettings`, `DeployResponse`, `DeployStatus`, `AuditEntry`. |
 | `src/lib/utils.ts` | `cn()` class merge helper. |
 
 ### Admin components
 | File | Purpose |
 | --- | --- |
-| `src/components/admin/LoginScreen.tsx` | Dark sign-in card, renders the Google button, shows the "not authorized" state, and warns when `VITE_GOOGLE_CLIENT_ID` / `VITE_API_BASE_URL` are missing. |
+| `src/components/admin/LoginScreen.tsx` | Dark sign-in card with username and password fields, inline error state, and a warning when `VITE_API_BASE_URL` is missing. |
 | `src/components/admin/AdminShell.tsx` | Dark sidebar (7 tabs) that collapses to a mobile top bar; shows the signed-in identity and Sign out. Exports `TABS` and `TabId`. |
 | `src/components/admin/Dashboard.tsx` | Holds the active tab and renders the matching section. |
 | `src/components/admin/primitives.tsx` | `PageHeader`, `Panel`, `InlineError`, `Loading`, `EmptyState`, `FieldLabel`, `NativeSelect`, `FrameworkBadge`, `formatZar`, `formatBytes`. |
@@ -43,7 +43,7 @@ them to a GitHub repository. **The app holds no secrets.**
 
 ## 2. API contract
 
-Base URL: `VITE_API_BASE_URL`. Every request sends `Authorization: Bearer <Google ID token>`.
+Base URL: `VITE_API_BASE_URL`. Every request except `POST /auth/login` sends `Authorization: Bearer <session token>`.
 JSON bodies use `Content-Type: application/json`. Uploads send the raw file body with the
 file's own MIME type.
 
@@ -52,6 +52,7 @@ accepted). The client falls back to friendly text per status code (401 → sessi
 403 → not allowed, 404, 413 → file too large, 5xx → try again).
 
 ### Auth
+- `POST /auth/login` body `{ username, email, password }` → `{ token, user?: { email?, name? } }`. No auth header. Must return 401 for bad credentials. **Required for sign-in.**
 - `GET /auth/me` → `{ email, name?, picture? }`. Must return 401/403 for any token that is not the approved admin.
 
 ### Frameworks
@@ -98,8 +99,7 @@ CORS: the Worker must allow the dashboard origin and the `Authorization` and
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | Yes | Cloudflare Worker base URL, no trailing slash. |
-| `VITE_GOOGLE_CLIENT_ID` | Yes | Google OAuth web client ID for the sign-in button. |
-| `VITE_ADMIN_EMAIL` | Optional | Client-side convenience check so the wrong account fails fast. The API remains the real gate. |
+| `VITE_ADMIN_EMAIL` | Optional | Display only; the API is the real gate. |
 | `VITE_SITE_BASE_URL` | Optional | Live storefront URL for image comparison and the "Visit live site" link. Defaults to `https://certisme.co.za`. |
 
 All are public build-time values. No secret ever belongs in this app.
@@ -108,15 +108,13 @@ All are public build-time values. No secret ever belongs in this app.
 
 ## 4. Auth flow, step by step
 
-1. `/` renders the login screen; the Google Identity script renders the sign-in button.
-2. The user picks their Google account; Google returns an ID token (JWT credential).
-3. The app decodes the token's payload only to read email/name/picture (no verification client-side).
-4. If `VITE_ADMIN_EMAIL` is set and does not match, status becomes `unauthorized` with a clear message.
-5. Otherwise the app calls `GET /auth/me` with the token. The Worker verifies the Google signature, checks the email against its own allow-list, and returns the profile or 401/403.
-6. On success the session `{ token, issuedAt, user }` is written to `localStorage` and the dashboard renders.
-7. On failure the session is cleared and the "You are not authorized" screen shows.
-8. On reload a stored session is re-verified against `/auth/me`; sessions older than 24 hours are discarded.
-9. A timer signs the user out exactly 24 hours after issue, even in an open tab. Sign out clears storage and disables Google auto-select.
+1. `/` renders the login screen: username/email + password form.
+2. Submitting calls `POST /auth/login` with `{ username, email, password }` (the same value is sent as both `username` and `email` so either field name works on the Worker). No `Authorization` header is sent on this call.
+3. The Worker validates the credentials and responds `{ token, user?: { email?, name? } }` (`access_token` is also accepted). Anything else → 401 with `{ "error": "..." }`.
+4. On success the session `{ token, issuedAt, user }` is written to `localStorage` and the dashboard renders. The password is never stored.
+5. On failure the inline error shows the Worker's message (or a friendly fallback) and the password field clears.
+6. On reload a stored session is re-verified with `GET /auth/me` using the bearer token; sessions older than 24 hours are discarded.
+7. A timer signs the user out exactly 24 hours after issue, even in an open tab. Sign out clears storage.
 10. Any 401 from an API call surfaces "Your session has expired. Please sign in again."
 
 ---
@@ -143,7 +141,7 @@ cp .env.example .env   # or create .env
 
 ```
 VITE_API_BASE_URL=https://your-worker.workers.dev
-VITE_GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+
 VITE_ADMIN_EMAIL=you@example.com
 VITE_SITE_BASE_URL=https://certisme.co.za
 ```
@@ -153,14 +151,14 @@ bun run dev      # http://localhost:8080
 bun run build    # production build
 ```
 
-Add `http://localhost:8080` to the Google OAuth client's authorised JavaScript origins,
-and allow that origin in the Worker's CORS configuration.
+Allow `http://localhost:8080` in the Worker's CORS configuration.
+
 
 ---
 
 ## 7. Assumptions and unresolved items
 
-- The Worker verifies the Google ID token itself and enforces the single-admin allow-list; the frontend's email check is only a convenience.
+- The Worker owns credential checking (`POST /auth/login`) and the single-admin allow-list; the frontend stores only the returned token.
 - Write endpoints are assumed to return the full updated list; if they return a single object or 204, the dashboard refetches instead (already handled).
 - Product IDs and framework IDs are supplied by the admin and must be unique and URL-safe; there is no server-side uniqueness feedback beyond the error message.
 - Document and image uploads send the raw file body with `?product=` (documents) or `/images/:productId` (images). If the Worker expects `multipart/form-data`, `apiUpload` needs one small change.
