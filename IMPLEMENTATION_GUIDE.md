@@ -52,6 +52,7 @@ accepted). The client falls back to friendly text per status code (401 → sessi
 403 → not allowed, 404, 413 → file too large, 5xx → try again).
 
 ### Auth
+- `POST /auth/login` body `{ username, email, password }` → `{ token, user?: { email?, name? } }`. No auth header. Must return 401 for bad credentials. **Required for sign-in.**
 - `GET /auth/me` → `{ email, name?, picture? }`. Must return 401/403 for any token that is not the approved admin.
 
 ### Frameworks
@@ -98,8 +99,7 @@ CORS: the Worker must allow the dashboard origin and the `Authorization` and
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `VITE_API_BASE_URL` | Yes | Cloudflare Worker base URL, no trailing slash. |
-| `VITE_GOOGLE_CLIENT_ID` | Yes | Google OAuth web client ID for the sign-in button. |
-| `VITE_ADMIN_EMAIL` | Optional | Client-side convenience check so the wrong account fails fast. The API remains the real gate. |
+| `VITE_ADMIN_EMAIL` | Optional | Display only; the API is the real gate. |
 | `VITE_SITE_BASE_URL` | Optional | Live storefront URL for image comparison and the "Visit live site" link. Defaults to `https://certisme.co.za`. |
 
 All are public build-time values. No secret ever belongs in this app.
@@ -108,15 +108,13 @@ All are public build-time values. No secret ever belongs in this app.
 
 ## 4. Auth flow, step by step
 
-1. `/` renders the login screen; the Google Identity script renders the sign-in button.
-2. The user picks their Google account; Google returns an ID token (JWT credential).
-3. The app decodes the token's payload only to read email/name/picture (no verification client-side).
-4. If `VITE_ADMIN_EMAIL` is set and does not match, status becomes `unauthorized` with a clear message.
-5. Otherwise the app calls `GET /auth/me` with the token. The Worker verifies the Google signature, checks the email against its own allow-list, and returns the profile or 401/403.
-6. On success the session `{ token, issuedAt, user }` is written to `localStorage` and the dashboard renders.
-7. On failure the session is cleared and the "You are not authorized" screen shows.
-8. On reload a stored session is re-verified against `/auth/me`; sessions older than 24 hours are discarded.
-9. A timer signs the user out exactly 24 hours after issue, even in an open tab. Sign out clears storage and disables Google auto-select.
+1. `/` renders the login screen: username/email + password form.
+2. Submitting calls `POST /auth/login` with `{ username, email, password }` (the same value is sent as both `username` and `email` so either field name works on the Worker). No `Authorization` header is sent on this call.
+3. The Worker validates the credentials and responds `{ token, user?: { email?, name? } }` (`access_token` is also accepted). Anything else → 401 with `{ "error": "..." }`.
+4. On success the session `{ token, issuedAt, user }` is written to `localStorage` and the dashboard renders. The password is never stored.
+5. On failure the inline error shows the Worker's message (or a friendly fallback) and the password field clears.
+6. On reload a stored session is re-verified with `GET /auth/me` using the bearer token; sessions older than 24 hours are discarded.
+7. A timer signs the user out exactly 24 hours after issue, even in an open tab. Sign out clears storage.
 10. Any 401 from an API call surfaces "Your session has expired. Please sign in again."
 
 ---
