@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { API_BASE_URL } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { FieldLabel, InlineError, Panel } from "./primitives";
 import { Button } from "@/components/ui/button";
@@ -73,11 +72,6 @@ export function LoginScreen() {
               {busy ? "Signing in…" : "Sign in"}
             </Button>
 
-            {!API_BASE_URL ? (
-              <p className="text-xs text-destructive">
-                The API address is missing. Set VITE_API_BASE_URL before signing in.
-              </p>
-            ) : null}
           </form>
         </Panel>
 

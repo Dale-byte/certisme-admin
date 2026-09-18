@@ -1,12 +1,12 @@
 /**
- * Thin API client for the Cloudflare Worker that fronts the storefront GitHub repo.
- * The base URL comes from VITE_API_BASE_URL. No secrets ever live in this file.
+ * Dashboard API layer. Calls go to this project's own server functions, which
+ * commit changes to the storefront repository through the GitHub connection.
+ * No API address and no secrets live in the browser.
  */
+import { adminCall, adminUpload } from "./admin.functions";
 
-export const API_BASE_URL = (import.meta.env["VITE_API_BASE_URL"] ?? "").replace(/\/$/, "");
-export const ADMIN_EMAIL = import.meta.env["VITE_ADMIN_EMAIL"] ?? "";
 export const SITE_BASE_URL = (
-  import.meta.env["VITE_SITE_BASE_URL"] ?? "https://certisme.co.za"
+  import.meta.env["VITE_SITE_BASE_URL"] ?? "https://certisme.net"
 ).replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -18,82 +18,41 @@ export class ApiError extends Error {
   }
 }
 
-function humanize(status: number, fallback?: string): string {
-  if (fallback && fallback.trim()) return fallback;
-  if (status === 0) return "Could not reach the API. Check your connection and the API address.";
-  if (status === 401) return "Your session has expired. Please sign in again.";
-  if (status === 403) return "This account is not allowed to manage the storefront.";
-  if (status === 404) return "That item could not be found.";
-  if (status === 413) return "That file is too large for the API to accept.";
-  if (status >= 500) return "The API had a problem. Please try again in a moment.";
-  return "The request could not be completed.";
-}
-
-async function readError(res: Response): Promise<string> {
-  try {
-    const text = await res.text();
-    if (!text) return "";
-    try {
-      const parsed = JSON.parse(text) as { error?: string; message?: string };
-      return parsed.error ?? parsed.message ?? "";
-    } catch {
-      return text.slice(0, 300);
-    }
-  } catch {
-    return "";
-  }
+function toApiError(err: unknown): ApiError {
+  const raw = err instanceof Error && err.message ? err.message : "";
+  const match = /^(\d{3}):\s*(.*)$/.exec(raw);
+  if (match) return new ApiError(match[2] || "The request could not be completed.", Number(match[1]));
+  if (!raw) return new ApiError("Something went wrong. Please try again.", 500);
+  if (/failed to fetch|network/i.test(raw))
+    return new ApiError("Could not reach the server. Check your connection and try again.", 0);
+  return new ApiError(raw, 400);
 }
 
 type RequestOptions = {
   method?: string;
   token: string;
   body?: unknown;
-  rawBody?: BodyInit;
-  contentType?: string;
   query?: Record<string, string>;
 };
 
 export async function apiRequest<T>(path: string, opts: RequestOptions): Promise<T> {
-  if (!API_BASE_URL) {
-    throw new ApiError("The API address is not configured yet (VITE_API_BASE_URL).", 0);
-  }
-
-  const url = new URL(`${API_BASE_URL}${path}`);
-  for (const [k, v] of Object.entries(opts.query ?? {})) url.searchParams.set(k, v);
-
-  const headers: Record<string, string> = {};
-  if (opts.token) headers["Authorization"] = `Bearer ${opts.token}`;
-  let body: BodyInit | undefined;
-
-  if (opts.rawBody !== undefined) {
-    body = opts.rawBody;
-    if (opts.contentType) headers["Content-Type"] = opts.contentType;
-  } else if (opts.body !== undefined) {
-    body = JSON.stringify(opts.body);
-    headers["Content-Type"] = "application/json";
-  }
-
-  let res: Response;
   try {
-    res = await fetch(url.toString(), { method: opts.method ?? "GET", headers, body: body ?? null });
-  } catch {
-    throw new ApiError(humanize(0), 0);
-  }
-
-  if (!res.ok) throw new ApiError(humanize(res.status, await readError(res)), res.status);
-
-  if (res.status === 204) return undefined as T;
-  const text = await res.text();
-  if (!text) return undefined as T;
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    return text as unknown as T;
+    const result = await adminCall({
+      data: {
+        token: opts.token,
+        path,
+        method: opts.method ?? "GET",
+        ...(opts.body !== undefined ? { body: opts.body } : {}),
+      },
+    });
+    return result as T;
+  } catch (err) {
+    throw toApiError(err);
   }
 }
 
-/** Upload with progress reporting. Used for documents and images. */
-export function apiUpload<T>(
+/** Upload with coarse progress reporting. Used for documents and images. */
+export async function apiUpload<T>(
   path: string,
   opts: {
     token: string;
@@ -102,48 +61,32 @@ export function apiUpload<T>(
     onProgress?: (percent: number) => void;
   },
 ): Promise<T> {
-  return new Promise((resolve, reject) => {
-    if (!API_BASE_URL) {
-      reject(new ApiError("The API address is not configured yet (VITE_API_BASE_URL).", 0));
-      return;
-    }
-    const url = new URL(`${API_BASE_URL}${path}`);
-    for (const [k, v] of Object.entries(opts.query ?? {})) url.searchParams.set(k, v);
+  const isImage = path.startsWith("/images");
+  const productId = isImage
+    ? decodeURIComponent(path.slice("/images/".length))
+    : (opts.query?.["product"] ?? "");
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", url.toString());
-    xhr.setRequestHeader("Authorization", `Bearer ${opts.token}`);
-    xhr.setRequestHeader("Content-Type", opts.file.type || "application/octet-stream");
+  const form = new FormData();
+  form.set("token", opts.token);
+  form.set("kind", isImage ? "image" : "document");
+  form.set("product", productId);
+  form.set("file", opts.file, opts.file.name);
 
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) opts.onProgress?.(Math.round((e.loaded / e.total) * 100));
-    };
-    xhr.onerror = () => reject(new ApiError(humanize(0), 0));
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        opts.onProgress?.(100);
-        try {
-          resolve(xhr.responseText ? (JSON.parse(xhr.responseText) as T) : (undefined as T));
-        } catch {
-          resolve(undefined as T);
-        }
-      } else {
-        let msg = "";
-        try {
-          const parsed = JSON.parse(xhr.responseText) as { error?: string; message?: string };
-          msg = parsed.error ?? parsed.message ?? "";
-        } catch {
-          msg = "";
-        }
-        reject(new ApiError(humanize(xhr.status, msg), xhr.status));
-      }
-    };
-    xhr.send(opts.file);
-  });
+  opts.onProgress?.(15);
+  const tick = setInterval(() => opts.onProgress?.(70), 400);
+  try {
+    const result = await adminUpload({ data: form });
+    opts.onProgress?.(100);
+    return result as T;
+  } catch (err) {
+    throw toApiError(err);
+  } finally {
+    clearInterval(tick);
+  }
 }
 
 export function errorMessage(err: unknown): string {
   if (err instanceof ApiError) return err.message;
-  if (err instanceof Error && err.message) return err.message;
+  if (err instanceof Error && err.message) return toApiError(err).message;
   return "Something went wrong. Please try again.";
 }
