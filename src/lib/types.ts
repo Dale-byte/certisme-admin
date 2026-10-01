@@ -54,3 +54,5 @@ export type AuditEntry = {
   message: string;
   url?: string | undefined;
 };
+
+export type { ContentRevision, EditorialPage, FaqItem, SiteContent, SiteLink, SitePage, SiteSection, TextBlock } from "./site-content";
