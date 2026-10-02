@@ -10,12 +10,14 @@ import {
   LayoutGrid,
   LogOut,
   Menu,
+  PanelsTopLeft,
   Rocket,
   Settings,
   X,
 } from "lucide-react";
 
 export const TABS = [
+  { id: "site", label: "Site Builder", icon: PanelsTopLeft },
   { id: "products", label: "Products", icon: Boxes },
   { id: "frameworks", label: "Frameworks", icon: LayoutGrid },
   { id: "documents", label: "Documents", icon: FileText },
