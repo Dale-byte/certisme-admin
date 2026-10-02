@@ -476,8 +476,8 @@ function validateContent(c: Record<string, unknown>) {
 }
 
 export async function getSiteContent() {
-  const draft = await readYaml<Record<string, unknown>>(CONTENT_DRAFT);
-  const live = await readYaml<Record<string, unknown>>(CONTENT_LIVE);
+  const draft = await readYaml<import("./site-content").SiteContent>(CONTENT_DRAFT);
+  const live = await readYaml<import("./site-content").SiteContent>(CONTENT_LIVE);
   const content = draft?.data ?? live?.data ?? (await defaultContent());
   return { content, hasDraft: !!draft, hasLive: !!live };
 }
@@ -523,5 +523,5 @@ export async function restoreRevision(sha: string) {
   );
   const text = Buffer.from((file.content ?? "").replace(/\n/g, ""), "base64").toString("utf8");
   const url = await writeFile(CONTENT_DRAFT, Buffer.from(text, "utf8"), `Admin: restore content from ${sha.slice(0, 7)} into draft`);
-  return { commit_url: url, content: parse(text) };
+  return { commit_url: url };
 }
