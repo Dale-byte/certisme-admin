@@ -75,6 +75,14 @@ export const adminCall = createServerFn({ method: "POST" })
 
       if (path === "/audit") return await repo.listCommits();
 
+      if (path === "/content" && method === "GET") return await repo.getSiteContent();
+      if (path === "/content/draft" && method === "PUT") return await repo.saveDraft(body as never);
+      if (path === "/content/publish" && method === "POST")
+        return await repo.publishContent(body as never);
+      if (path === "/content/history") return await repo.contentHistory();
+      if (path === "/content/restore" && method === "POST")
+        return await repo.restoreRevision(String((body as { sha?: string })?.sha ?? ""));
+
       throw new Error(`Unsupported action (${method} ${path}).`);
     } catch (err) {
       fail(err);
