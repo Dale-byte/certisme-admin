@@ -438,3 +438,90 @@ export async function listCommits() {
     url: c.html_url,
   }));
 }
+
+// ── Site content (draft + live) ─────────────────────────────────────────────
+
+const CONTENT_LIVE = "tools/certisme/data/site-content.yaml";
+const CONTENT_DRAFT = "tools/certisme/data/site-content.draft.yaml";
+
+async function readYaml<T>(path: string): Promise<{ data: T; sha: string } | null> {
+  try {
+    const file = await gh<{ content?: string; sha: string }>(
+      `/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`,
+    );
+    const text = Buffer.from((file.content ?? "").replace(/\n/g, ""), "base64").toString("utf8");
+    return { data: parse(text) as T, sha: file.sha };
+  } catch (err) {
+    if (err instanceof Error && err.message === "not-found") return null;
+    throw err;
+  }
+}
+
+async function defaultContent() {
+  const { catalog } = await readCatalog();
+  const { defaultSiteContent } = await import("./site-defaults");
+  return defaultSiteContent(catalog.site.name ?? "CertiSME");
+}
+
+function validateContent(c: Record<string, unknown>) {
+  if (!c || c["version"] !== 1) throw new Error("The site content is not in a recognised format.");
+  const pages = (c["pages"] as { slug: string; name: string }[]) ?? [];
+  const seen = new Set<string>();
+  for (const p of pages) {
+    if (!p.name?.trim()) throw new Error("Every page needs a name.");
+    if (!/^\/[a-z0-9\-/]*$/.test(p.slug)) throw new Error(`Page "${p.name}" has an invalid address (use /like-this).`);
+    if (seen.has(p.slug)) throw new Error(`Two pages share the address ${p.slug}.`);
+    seen.add(p.slug);
+  }
+}
+
+export async function getSiteContent() {
+  const draft = await readYaml<Record<string, unknown>>(CONTENT_DRAFT);
+  const live = await readYaml<Record<string, unknown>>(CONTENT_LIVE);
+  const content = draft?.data ?? live?.data ?? (await defaultContent());
+  return { content, hasDraft: !!draft, hasLive: !!live };
+}
+
+export async function saveDraft(content: Record<string, unknown>) {
+  validateContent(content);
+  content["updated_at"] = new Date().toISOString();
+  const url = await writeFile(CONTENT_DRAFT, Buffer.from(stringify(content), "utf8"), "Admin: save site content draft");
+  return { commit_url: url };
+}
+
+export async function publishContent(content: Record<string, unknown>) {
+  validateContent(content);
+  content["updated_at"] = new Date().toISOString();
+  const url = await writeFile(CONTENT_LIVE, Buffer.from(stringify(content), "utf8"), "Admin: publish site content");
+  const draft = await readYaml(CONTENT_DRAFT);
+  if (draft) {
+    await gh(`/repos/${OWNER}/${REPO}/contents/${CONTENT_DRAFT}`, {
+      method: "DELETE",
+      body: { message: "Admin: clear published draft", sha: draft.sha, branch: BRANCH },
+    });
+  }
+  return { commit_url: url };
+}
+
+export async function contentHistory() {
+  const commits = await gh<
+    { sha: string; html_url: string; commit: { message: string; author?: { name?: string; date?: string } } }[]
+  >(`/repos/${OWNER}/${REPO}/commits?sha=${BRANCH}&path=${CONTENT_LIVE}&per_page=30`);
+  return commits.map((c) => ({
+    sha: c.sha,
+    author: c.commit.author?.name ?? "Unknown",
+    date: c.commit.author?.date ?? "",
+    message: c.commit.message.split("\n")[0] ?? "",
+    url: c.html_url,
+  }));
+}
+
+export async function restoreRevision(sha: string) {
+  if (!/^[0-9a-f]{7,40}$/.test(sha)) throw new Error("Unknown revision.");
+  const file = await gh<{ content?: string }>(
+    `/repos/${OWNER}/${REPO}/contents/${CONTENT_LIVE}?ref=${sha}`,
+  );
+  const text = Buffer.from((file.content ?? "").replace(/\n/g, ""), "base64").toString("utf8");
+  const url = await writeFile(CONTENT_DRAFT, Buffer.from(text, "utf8"), `Admin: restore content from ${sha.slice(0, 7)} into draft`);
+  return { commit_url: url, content: parse(text) };
+}
