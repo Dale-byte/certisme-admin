@@ -7,12 +7,14 @@ import { ImagesTab } from "./tabs/ImagesTab";
 import { SettingsTab } from "./tabs/SettingsTab";
 import { DeployTab } from "./tabs/DeployTab";
 import { AuditTab } from "./tabs/AuditTab";
+import { SiteBuilderTab } from "./tabs/SiteBuilderTab";
 
 export function Dashboard() {
-  const [tab, setTab] = useState<TabId>("products");
+  const [tab, setTab] = useState<TabId>("site");
 
   return (
     <AdminShell active={tab} onChange={setTab}>
+      {tab === "site" ? <SiteBuilderTab /> : null}
       {tab === "products" ? <ProductsTab /> : null}
       {tab === "frameworks" ? <FrameworksTab /> : null}
       {tab === "documents" ? <DocumentsTab /> : null}
