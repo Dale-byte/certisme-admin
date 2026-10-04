@@ -164,3 +164,13 @@ required. Optionally set `VITE_SITE_BASE_URL` if the live storefront moves.
 - Verified end to end: sign-in (correct and incorrect), product/framework/document/settings
   loading, build status and audit history. A full publish has not been triggered from the
   dashboard, and no product has been created or deleted against the live repo yet.
+
+## Site Builder (whole-site editor)
+
+- Content lives in `tools/certisme/data/site-content.yaml` (live) and `site-content.draft.yaml` (draft) in the storefront repo.
+- **Save draft** commits only the draft file — the live site is unaffected.
+- **Publish** validates, writes the live file, removes the draft, and the normal GitHub → Cloudflare workflow deploys it.
+- **History** lists earlier published versions; restoring loads one into the draft (no history is rewritten).
+- The storefront generator (`build-catalog.ts`) reads the live file when present and falls back to its built-in wording otherwise. All text is HTML-escaped; links are limited to https, mailto, `/` and `#`.
+- Editable: pages and sections, header/footer links, footer text, logo text, colours, font, spacing, corners, site-wide labels, FAQ, 404 page, page SEO.
+- Not yet editable: guide pages, template pages, page images.

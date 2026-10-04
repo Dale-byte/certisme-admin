@@ -4,5 +4,5 @@
 - [ ] Add draft save, publish, history, restore, and media support.
 - [ ] Build the Site Builder interface and draft preview.
 - [x] Make the storefront generator consume published editor content.
-- [ ] Verify sign-in, editing, draft save, and responsive layouts.
-- [ ] Update the implementation guide.
+- [x] Verify sign-in, editing, draft save, and responsive layouts.
+- [x] Update the implementation guide.
