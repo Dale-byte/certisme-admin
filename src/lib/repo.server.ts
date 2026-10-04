@@ -479,6 +479,13 @@ export async function getSiteContent() {
   const draft = await readYaml<import("./site-content").SiteContent>(CONTENT_DRAFT);
   const live = await readYaml<import("./site-content").SiteContent>(CONTENT_LIVE);
   const content = draft?.data ?? live?.data ?? (await defaultContent());
+  // Older saves have no guide/template copy yet: start from the storefront's current wording.
+  const editorial = (await import("./editorial-defaults.json")).default as unknown as Pick<
+    import("./site-content").SiteContent,
+    "guides" | "templates"
+  >;
+  if (!content.guides?.length) content.guides = structuredClone(editorial.guides);
+  if (!content.templates?.length) content.templates = structuredClone(editorial.templates);
   return { content, hasDraft: !!draft, hasLive: !!live };
 }
 
