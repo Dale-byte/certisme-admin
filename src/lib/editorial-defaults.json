@@ -1,0 +1,464 @@
+{
+ "guides": [
+  {
+   "id": "iso27001",
+   "badge": "ISO 27001:2022",
+   "h1": "ISO 27001 for SMEs: an ISMS documentation guide",
+   "metaTitle": "ISO 27001 for SMEs: ISMS Documentation Guide | CertiSME",
+   "metaDescription": "What ISO 27001:2022 actually requires, which policy documents and registers you need for ISMS certification, and a practical roadmap for small and medium businesses.",
+   "intro": [
+    "ISO 27001 is the international standard for information security management. It is the framework most South African SMEs turn to when a customer, tender, or regulator asks them to prove they take information security seriously.",
+    "This guide explains what the standard requires, which documents you need to build, and how a small business can work towards certification without a full-time compliance team."
+   ],
+   "sections": [
+    {
+     "id": "g-iso27001-s0",
+     "heading": "What ISO 27001 is and why it exists",
+     "paragraphs": [
+      "ISO 27001 sets out the requirements for an Information Security Management System (ISMS) - a structured way of protecting your organisation information and demonstrating that you manage risk deliberately. The 2022 revision organises 93 controls across four themes: Organisational, People, Physical, and Technological.",
+      "Certification is awarded by accredited certification bodies after an independent audit and is valid for three years, with annual surveillance audits. For most SMEs the value is practical: it gives clients and partners a recognisable, audited signal that their data is safe with you."
+     ]
+    },
+    {
+     "id": "g-iso27001-s1",
+     "heading": "Why SMEs pursue ISO 27001",
+     "paragraphs": [
+      "The most common trigger is procurement. Enterprises and government departments increasingly require suppliers to hold ISO 27001 certification or at least demonstrate an ISMS. Tenders regularly ask for it as a condition of entry.",
+      "The other drivers are regulatory and commercial: a clear security framework helps you meet protection-of-personal-information obligations, reduces the impact of incidents, and is a genuine differentiator against competitors who cannot show a structured programme."
+     ]
+    },
+    {
+     "id": "g-iso27001-s2",
+     "heading": "The documents you need for certification",
+     "paragraphs": [
+      "Certification is built on a documentation foundation. The core set for an SME is smaller than people expect.",
+      "You need a scope and context document defining what your ISMS covers, your stakeholders, and their requirements; a set of policies such as the Information Security Policy, Acceptable Use, Access Control, Incident Response, Asset Management, and Business Continuity policies; an Annex A controls register used as your Statement of Applicability showing which of the 93 controls apply and why; and a risk register aligned to clauses 6.1 and 6.2 recording your risks, scores, and treatment decisions.",
+      "Our ISO 27001 document packs are ready-to-use templates for exactly these four documents. They are pre-structured with placeholder fields for your company details so you tailor rather than start from a blank page."
+     ]
+    },
+    {
+     "id": "g-iso27001-s3",
+     "heading": "A realistic roadmap for a small business",
+     "paragraphs": [
+      "A typical certification journey for an SME runs six to twelve months. Start with a gap analysis against the standard, build your documentation foundation, implement the controls in scope, and run an internal audit before inviting a certification body to assess you.",
+      "Choose an accredited certification body early, because their requirements will shape your implementation. Keep the momentum going - the documentation is a living part of the business, not a one-off filing exercise."
+     ]
+    },
+    {
+     "id": "g-iso27001-s4",
+     "heading": "Common mistakes to avoid",
+     "paragraphs": [
+      "The most expensive mistakes are also the most common: buying generic document packs without tailoring them to your business, defining an ISMS scope that is vague or unrealistically wide, treating certification as a one-time project rather than an ongoing system, and attempting it without visible management commitment.",
+      "Also remember that not all 93 Annex A controls will apply to you. The applicability assessment - your Statement of Applicability - is there to justify what you include and what you exclude."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "g-iso27001-f0",
+     "question": "How much does ISO 27001 certification cost for an SME?",
+     "answer": "The audit fees charged by accredited certification bodies vary by company size and scope and typically run to tens of thousands of rands. Our document templates cover the documentation foundation for a small fraction of that, but certification itself always requires a formal audit."
+    },
+    {
+     "id": "g-iso27001-f1",
+     "question": "How long does it take to get certified?",
+     "answer": "Most SMEs plan for six to twelve months from gap analysis to certification. The exact time depends on how much of the work is already in place and how quickly the business implements the controls in scope."
+    },
+    {
+     "id": "g-iso27001-f2",
+     "question": "Will document templates get me certified?",
+     "answer": "No. Certification requires an accredited audit of your actual implementation. The documentation foundation is a significant part of the work - and what our templates provide - but you still need to implement the controls and undergo the audit."
+    },
+    {
+     "id": "g-iso27001-f3",
+     "question": "Do I need all 93 Annex A controls?",
+     "answer": "No. The Statement of Applicability lets you justify which controls are relevant to your ISMS scope. Many controls will not apply to a small business, and that is expected."
+    }
+   ]
+  },
+  {
+   "id": "iso42001",
+   "badge": "ISO 42001:2023",
+   "h1": "ISO 42001 for SMEs: an AI governance guide",
+   "metaTitle": "ISO 42001 for SMEs: AI Governance (AIMS) Guide | CertiSME",
+   "metaDescription": "The first certifiable standard for AI management systems. What ISO 42001 requires, the AI policy templates and impact assessments you need, and how SMEs can prepare.",
+   "intro": [
+    "ISO 42001 is the first international standard that sets out requirements for an Artificial Intelligence Management System (AIMS). For small and medium businesses using or building AI, it is quickly becoming the benchmark clients ask about.",
+    "This guide covers what the standard requires, which documents an SME needs, and how it fits alongside ISO 27001 and other frameworks."
+   ],
+   "sections": [
+    {
+     "id": "g-iso42001-s0",
+     "heading": "What ISO 42001 is",
+     "paragraphs": [
+      "Published in December 2023, ISO 42001:2023 provides a certifiable management system for AI. It applies whether your organisation develops AI systems, deploys them, or simply uses AI tools in its operations.",
+      "The standard is built around the same plan-do-check-act cycle as ISO 27001, with specific requirements for AI context, risk assessment, lifecycle controls, and human oversight. It complements technical standards such as ISO/IEC 23894 (AI risk management guidance)."
+     ]
+    },
+    {
+     "id": "g-iso42001-s1",
+     "heading": "Why SMEs should care now",
+     "paragraphs": [
+      "AI adoption among SMEs is growing quickly, and with it questions from customers and regulators about how AI is governed. Tenders increasingly reference AI governance, and organisations in the AI supply chain are being asked to demonstrate responsible practice.",
+      "For a small business, starting early is an advantage. Building a lightweight AI governance framework now is far cheaper than reconstructing it later when a client or auditor asks for evidence."
+     ]
+    },
+    {
+     "id": "g-iso42001-s2",
+     "heading": "What you need to document",
+     "paragraphs": [
+      "The documentation foundation for an AIMS is practical: an AI policy set covering governance, acceptable use, AI risk management, data governance for AI, and human oversight; an AI system impact assessment capturing which AI systems are in scope and their societal and individual impacts; and an implementation tracker based on the guidance in Annexure B of the standard.",
+      "Our ISO 42001 document packs provide ready-to-use templates for exactly this set, pre-structured with placeholder fields so you can tailor them to your business."
+     ]
+    },
+    {
+     "id": "g-iso42001-s3",
+     "heading": "How ISO 42001 fits with ISO 27001",
+     "paragraphs": [
+      "ISO 42001 and ISO 27001 use the same management system structure, so they combine naturally. An organisation certified for ISO 27001 already has the governance rhythm - policies, risk assessment, internal audit - that ISO 42001 builds on.",
+      "Many SMEs run them as a single integrated management system, sharing policies where the controls overlap and keeping one audit calendar."
+     ]
+    },
+    {
+     "id": "g-iso42001-s4",
+     "heading": "A roadmap for a small business",
+     "paragraphs": [
+      "Start by scoping which AI systems you have or plan to use. Build the documentation foundation, run an impact assessment on the systems that matter most, then implement the controls and review them through your existing management processes.",
+      "If certification is a goal, engage an accredited certification body early so their requirements inform your implementation from the start."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "g-iso42001-f0",
+     "question": "Is ISO 42001 certifiable?",
+     "answer": "Yes. Like ISO 27001, ISO 42001 can be certified by accredited certification bodies through an independent audit. It is the first certifiable international standard for AI management systems."
+    },
+    {
+     "id": "g-iso42001-f1",
+     "question": "Do I need ISO 42001 if my team just uses ChatGPT?",
+     "answer": "Potentially. The standard applies to how AI is used, not just how it is built. Even simple internal AI use should be covered by AI use policies and basic risk and impact assessment, which our templates provide."
+    },
+    {
+     "id": "g-iso42001-f2",
+     "question": "Is ISO 42001 related to the EU AI Act?",
+     "answer": "The EU AI Act is a law while ISO 42001 is a certifiable management standard, but they complement each other. A documented AI management system is a practical way to demonstrate responsible AI governance."
+    },
+    {
+     "id": "g-iso42001-f3",
+     "question": "What documents do I need for an AIMS?",
+     "answer": "At a minimum, an AI policy set (governance, use, risk, data, and human oversight), an AI system impact assessment, and an implementation tracker. Our ISO 42001 packs cover all three."
+    }
+   ]
+  },
+  {
+   "id": "nist-ai-rmf",
+   "badge": "NIST AI RMF",
+   "h1": "NIST AI RMF for SMEs: an AI risk management guide",
+   "metaTitle": "NIST AI RMF for SMEs: AI Risk Management Guide | CertiSME",
+   "metaDescription": "Understanding the NIST AI RMF: the four functions (GOVERN, MAP, MEASURE, MANAGE), what documentation SMEs need, and how it complements ISO 42001.",
+   "intro": [
+    "The NIST AI Risk Management Framework (NIST AI 100-1) is a voluntary framework from the US National Institute of Standards and Technology for managing AI risk across the full system lifecycle.",
+    "It is increasingly referenced in enterprise and government procurement, which makes it directly relevant to SMEs supplying AI-enabled products or services."
+   ],
+   "sections": [
+    {
+     "id": "g-nist-ai-rmf-s0",
+     "heading": "What the NIST AI RMF is",
+     "paragraphs": [
+      "The RMF organises AI risk management around four core functions: GOVERN, MAP, MEASURE, and MANAGE. It is outcome-focused and voluntary - unlike ISO 42001, it is not a certifiable management system.",
+      "The framework is designed to be flexible and proportional, so a small business can apply it at a level appropriate to its AI use without building heavyweight bureaucracy."
+     ]
+    },
+    {
+     "id": "g-nist-ai-rmf-s1",
+     "heading": "Why SMEs adopt it",
+     "paragraphs": [
+      "The most common reason is procurement. Enterprises and government clients in many countries now reference the NIST AI RMF in AI-related contracts, and suppliers are expected to show they manage AI risk systematically.",
+      "It also complements ISO 42001 well. Many organisations adopt the RMF first as a lightweight starting point and later layer ISO 42001 on top if they want a certifiable system."
+     ]
+    },
+    {
+     "id": "g-nist-ai-rmf-s2",
+     "heading": "What you need to document",
+     "paragraphs": [
+      "For the GOVERN function you need the AI policies that establish accountability: AI governance and accountability, AI risk tolerance and appetite, AI incident response, and third-party AI supplier management.",
+      "For MAP, MEASURE, and MANAGE you need a risk profile workbook capturing your AI system inventory, risk context, likelihood and impact scoring, and treatment decisions - cross-referenced to the RMF subcategories.",
+      "Our NIST AI RMF document packs provide templates for exactly this set, including worked examples for common SME AI use cases."
+     ]
+    },
+    {
+     "id": "g-nist-ai-rmf-s3",
+     "heading": "NIST AI RMF vs ISO 42001",
+     "paragraphs": [
+      "The RMF is a voluntary framework that tells you what good AI risk management looks like; ISO 42001 is a certifiable management system that requires a documented, audited programme.",
+      "They are designed to work together. A common path is to use the RMF to build your AI risk practice and then pursue ISO 42001 certification when a client or market requires it."
+     ]
+    },
+    {
+     "id": "g-nist-ai-rmf-s4",
+     "heading": "Getting started",
+     "paragraphs": [
+      "Begin with the AI systems you already have: list them, score their risk, and apply the four functions in order. A single spreadsheet - such as our risk profile workbook - is often enough to start.",
+      "Start with GOVERN: without clear ownership and policy, the other functions have nowhere to anchor. Then work through MAP, MEASURE, and MANAGE iteratively."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "g-nist-ai-rmf-f0",
+     "question": "Is the NIST AI RMF a certification?",
+     "answer": "No. It is a voluntary framework rather than a certifiable standard. Organisations claim alignment with it by documenting their AI risk management practices. If you need a certificate, ISO 42001 is the certifiable option."
+    },
+    {
+     "id": "g-nist-ai-rmf-f1",
+     "question": "Do I need both the NIST AI RMF and ISO 42001?",
+     "answer": "Not necessarily, but they complement each other. Many SMEs use the RMF as a lightweight starting point and pursue ISO 42001 later if clients or markets require certification."
+    },
+    {
+     "id": "g-nist-ai-rmf-f2",
+     "question": "Is the NIST AI RMF mandatory?",
+     "answer": "No. It is voluntary, but it is increasingly referenced in enterprise and government AI procurement, so suppliers are often expected to demonstrate alignment."
+    },
+    {
+     "id": "g-nist-ai-rmf-f3",
+     "question": "What are the four NIST AI RMF functions?",
+     "answer": "GOVERN (governance and accountability), MAP (understand the AI system and its context), MEASURE (assess and score risk), and MANAGE (treat and monitor risk over time)."
+    }
+   ]
+  }
+ ],
+ "templates": [
+  {
+   "id": "iso-27001-risk-assessment-template",
+   "badge": "ISO 27001:2022",
+   "h1": "ISO 27001 Risk Assessment Template XLS",
+   "metaTitle": "ISO 27001 Risk Assessment Template XLS | Ready-to-Use Excel | CertiSME",
+   "metaDescription": "Ready-to-use ISO 27001 risk assessment template xls. Pre-filled SME risks, 5×5 scoring, treatment plan. Instant download, ZAR, no subscription.",
+   "productId": "iso27001-risk-register",
+   "crossLinkId": "statement-of-applicability-template",
+   "intro": [
+    "An ISO 27001 risk assessment template (xls) is the fastest way to stand up the risk register your ISMS requires under clause 6.1 and 6.2. Instead of building a blank spreadsheet from scratch, you start with a structured workbook that already contains SME-relevant threats, a working 5×5 likelihood × impact matrix, and treatment columns.",
+    "This ready-to-use Excel template is pre-filled for South African small and medium businesses, delivered as a secure instant download for a one-time ZAR price - no subscription, no portal, no lock-in."
+   ],
+   "sections": [
+    {
+     "id": "t-iso-27001-risk-assessment-template-s0",
+     "heading": "What an ISO 27001 risk assessment template is",
+     "paragraphs": [
+      "An ISO 27001 risk assessment template is a structured register that records the information-security risks your organisation faces, how likely each one is, how much impact it would have, and what you plan to do about it. It is the working document that turns clause 6.1 (risk assessment) and clause 6.2 (risk treatment) from abstract requirements into something your team can actually maintain.",
+      "This template is delivered as an xls-compatible Excel workbook. Each row is a risk, and the columns guide you through identification, inherent scoring, treatment decisions, and residual scoring - so an auditor can follow exactly how you reached your conclusions."
+     ]
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-s1",
+     "heading": "Who needs this template",
+     "paragraphs": [
+      "Any SME working towards ISO 27001:2022 certification, responding to a customer or tender security questionnaire, or simply wanting a defensible way to track information-security risk. If a client, insurer, or regulator has asked to see how you manage risk, this is the document that demonstrates it.",
+      "It is equally useful whether you are building the whole ISMS documentation set or just want a practical risk register you can populate today without waiting for a consultant."
+     ]
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-s2",
+     "heading": "What's included",
+     "paragraphs": [
+      "The workbook comes with risk identification and categorisation, a 5×5 likelihood × impact matrix, inherent and residual risk scores, treatment options (accept, mitigate, transfer, or avoid), and more than 30 pre-populated SME-relevant risk examples across cloud, third-party, physical access, and phishing categories. You tailor the examples to your business and keep the structure.",
+      "Because the scoring is formula-driven, changing a likelihood or impact rating automatically recalculates your risk level - no fiddly manual maths."
+     ]
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-s3",
+     "heading": "Common mistakes companies make without one",
+     "paragraphs": [
+      "The most common failure is treating risk assessment as a one-off box-ticking exercise. Without a structured register, risk scores are recorded inconsistently, decisions are undocumented, and there is no audit trail. Auditors quickly spot registers with no justification for scores or treatment choices.",
+      "Another mistake is using a generic matrix that is not calibrated to the business. A template anchored to common SME threat categories gives you a realistic starting point, which is far better than a blank grid that nobody knows how to complete."
+     ]
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-s4",
+     "heading": "How it maps to ISO 27001:2022 clauses",
+     "paragraphs": [
+      "This template maps directly to clause 6.1 (actions to address risks and opportunities) and clause 6.2 (information security risk treatment). The register records the risk identification, the likelihood and impact assessment, and the risk owners, and it documents each treatment decision - exactly the evidence the standard asks you to maintain.",
+      "The pre-populated examples are drawn from the kinds of threats covered by the Annex A controls in the 2022 revision, so completing the register naturally connects to the relevant controls you will justify in your Statement of Applicability."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "t-iso-27001-risk-assessment-template-f0",
+     "question": "Is this ISO 27001 risk assessment template an xls file?",
+     "answer": "Yes. It is an Excel (.xlsx) workbook that opens in xls-compatible applications including Microsoft Excel and LibreOffice, and is delivered by secure instant download after payment."
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-f1",
+     "question": "Is the template pre-filled or blank?",
+     "answer": "Pre-filled. It includes 30+ SME-relevant risk examples, a 5×5 likelihood × impact matrix, and treatment plan columns. You replace the placeholders with your company details and tailor the examples."
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-f2",
+     "question": "Will this risk assessment template get me certified?",
+     "answer": "No - no document alone achieves ISO 27001 certification. This template provides the risk register foundation required by clauses 6.1 and 6.2, but you still need to implement the controls and pass an accredited audit."
+    },
+    {
+     "id": "t-iso-27001-risk-assessment-template-f3",
+     "question": "How is this different from other ISO 27001 templates?",
+     "answer": "It is focused on one document, in Excel, priced as a single one-time ZAR purchase with instant download - no subscription. It also cross-references the related Statement of Applicability template so the two documents work as a set."
+    }
+   ]
+  },
+  {
+   "id": "statement-of-applicability-template",
+   "badge": "ISO 27001:2022",
+   "h1": "Statement of Applicability Template Excel",
+   "metaTitle": "Statement of Applicability Template Excel | 93 Controls | CertiSME",
+   "metaDescription": "Statement of applicability template excel - all 93 ISO 27001:2022 Annex A controls pre-listed, justification columns. Instant download, ZAR, no subscription.",
+   "productId": "iso27001-annex-a-register",
+   "crossLinkId": "iso-27001-vendor-assessment-template",
+   "intro": [
+    "A statement of applicability template (excel) is the core document that shows an auditor which of the 93 ISO 27001:2022 Annex A controls apply to your business and why. This ready-to-use Excel template lists every control, organised by theme, with columns for applicability and justification, so you build your SoA quickly instead of starting from a blank workbook.",
+    "It is delivered by secure instant download for a one-time ZAR price - no subscription. You tailor the sheet to your scope and you are done."
+   ],
+   "sections": [
+    {
+     "id": "t-statement-of-applicability-template-s0",
+     "heading": "What a statement of applicability template is",
+     "paragraphs": [
+      "The Statement of Applicability (SoA) is the document required by ISO 27001 that records your selection of controls and the justification for including or excluding each one. It is the link between your risk assessment and the controls you implement.",
+      "This Excel template pre-lists all 93 Annex A controls from the 2022 revision, grouped into the four themes - Organisational, People, Physical, and Technological - so you work through a complete, standard-aligned list rather than trusting your memory to remember every control."
+     ]
+    },
+    {
+     "id": "t-statement-of-applicability-template-s1",
+     "heading": "Who needs it",
+     "paragraphs": [
+      "Anyone preparing for ISO 27001:2022 certification or being asked by a client for evidence of their control selection. The SoA is a mandatory part of the ISMS documentation set, so you cannot reach certification without one.",
+      "It also doubles as a practical accountability tool: once you record which controls apply and who owns them, you have a clear map of what the business has to implement and maintain."
+     ]
+    },
+    {
+     "id": "t-statement-of-applicability-template-s2",
+     "heading": "What's included",
+     "paragraphs": [
+      "The template includes all 93 Annex A controls, the four ISO 27001:2022 themes, applicability and justification columns, implementation status tracking, and fields for the control owner and evidence reference - mirroring the structure expected in the standard.",
+      "Because it is pre-listed as an Excel workbook, you can filter by theme, flag controls as applicable or not, and keep the whole register in one maintainable file."
+     ]
+    },
+    {
+     "id": "t-statement-of-applicability-template-s3",
+     "heading": "Common mistakes people make without one",
+     "paragraphs": [
+      "The most frequent mistake is marking every control as applicable. That inflates your scope, creates a huge implementation burden, and is a red flag to auditors. A proper SoA lets you justify exclusions for controls that genuinely do not apply to a small business.",
+      "Equally common is skipping the justification column altogether. The standard requires a reasoned basis for each inclusion and exclusion. Without it, the SoA is not auditable."
+     ]
+    },
+    {
+     "id": "t-statement-of-applicability-template-s4",
+     "heading": "How it maps to ISO 27001:2022 Annex A",
+     "paragraphs": [
+      "Annex A of ISO 27001:2022 defines the 93 controls across four themes. Clause 6.1.3 requires you to determine which controls are necessary to implement the risk treatment options you selected, and to prepare that as your Statement of Applicability.",
+      "This template is structured so each theme is a clear section of the workbook and each control carries the fields the standard expects, making the mapping between your risk treatment and your controls straightforward to follow."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "t-statement-of-applicability-template-f0",
+     "question": "Is this a statement of applicability template in excel?",
+     "answer": "Yes. It is an Excel (.xlsx) workbook with all 93 ISO 27001:2022 Annex A controls pre-listed, organised by theme, delivered by secure instant download after a one-time ZAR payment."
+    },
+    {
+     "id": "t-statement-of-applicability-template-f1",
+     "question": "Do I need all 93 Annex A controls?",
+     "answer": "No. The Statement of Applicability lets you justify which controls apply to your ISMS scope. Many controls will not apply to a small business, and that is expected."
+    },
+    {
+     "id": "t-statement-of-applicability-template-f2",
+     "question": "Are the controls already filled in?",
+     "answer": "All 93 controls are pre-listed with their theme. You fill in the applicability, justification, owner, and evidence columns based on your scope and risk assessment."
+    },
+    {
+     "id": "t-statement-of-applicability-template-f3",
+     "question": "What else do I need alongside the SoA?",
+     "answer": "A risk assessment register (clauses 6.1 and 6.2) works hand-in-hand with the SoA, since your risk treatment drives which controls you select and justify. See our ISO 27001 risk assessment template and vendor assessment template for the complementary documents."
+    }
+   ]
+  },
+  {
+   "id": "iso-27001-vendor-assessment-template",
+   "badge": "ISO 27001:2022",
+   "h1": "ISO 27001 vendor assessment template",
+   "metaTitle": "ISO 27001 Vendor Assessment Template | Third-Party Risk | CertiSME",
+   "metaDescription": "ISO 27001 vendor assessment template to score third-party supplier risk. Structured questionnaire and rating sheet. Instant download, ZAR, no subscription.",
+   "productId": "",
+   "crossLinkId": "iso-27001-risk-assessment-template",
+   "intro": [
+    "An ISO 27001 vendor assessment template helps you evaluate the information-security maturity of your suppliers and third parties - a requirement many SMEs overlook until an auditor or incident exposes the gap. This ready-to-use template gives you a structured questionnaire and rating sheet aligned to your ISMS.",
+    "It is delivered as a secure instant download for a one-time ZAR price, with no subscription, so you can document third-party risk control without drafting your own assessment from nothing."
+   ],
+   "sections": [
+    {
+     "id": "t-iso-27001-vendor-assessment-template-s0",
+     "heading": "What an ISO 27001 vendor assessment template is",
+     "paragraphs": [
+      "A vendor assessment template is a standardised way to score how securely a supplier handles your data and systems before you sign, and periodically after. It captures the questions you should ask about a vendor's security controls, certification status, incident history, and data-handling practices, and turns the answers into a clear risk rating.",
+      "This template is structured so you can assess multiple vendors consistently, compare them side by side, and keep an audit trail of who, what, and when you assessed."
+     ]
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-s1",
+     "heading": "Who needs it",
+     "paragraphs": [
+      "Any SME that works with cloud providers, managed IT, agencies, processors, or other third parties that touch business data. Under ISO 27001's supplier relationship controls, you are responsible for the security of data you hand to vendors, so you need a documented way to check and manage that risk.",
+      "It is especially relevant if a customer, insurer, or auditor asks how you manage third-party risk - a documented vendor assessment is the evidence that demonstrates you have a process."
+     ]
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-s2",
+     "heading": "What's included",
+     "paragraphs": [
+      "The template includes a structured vendor questionnaire covering security governance, access and authentication, data protection, incident response, sub-processors, and certification status, plus a rating sheet that converts answers into an overall third-party risk score.",
+      "It also includes fields for the vendor name, the service or data in scope, the assessment date, and the recommended action, so your records stay complete and auditable."
+     ]
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-s3",
+     "heading": "Common mistakes companies make without one",
+     "paragraphs": [
+      "The most common mistake is having no documented vendor assessment at all, then discovering a supplier with weak controls has access to customer data. Under the supplier-relationship controls, that is your risk to own.",
+      "Another frequent failure is assessing a vendor once at onboarding and never again. Third-party risk changes over time, so a template that supports periodic re-assessment - and records that you did it - keeps you covered."
+     ]
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-s4",
+     "heading": "How it maps to ISO 27001:2022 Annex A controls",
+     "paragraphs": [
+      "Supplier security is covered by several of the 93 Annex A controls in the 2022 revision, most directly in the supplier relationship group (A.5.19 information security in supplier relationships, A.5.20 addressing information security within supplier agreements, A.5.21 managing information security in the ICT supply chain, and A.5.22 monitoring, review and change management of supplier services).",
+      "Using this template gives you the documented evidence those controls expect, and it complements your risk register and Statement of Applicability, where the supplier-related controls are justified."
+     ]
+    }
+   ],
+   "faqs": [
+    {
+     "id": "t-iso-27001-vendor-assessment-template-f0",
+     "question": "What is an ISO 27001 vendor assessment template used for?",
+     "answer": "It is used to score the information-security maturity of third-party suppliers before and during a relationship, giving you documented evidence of third-party risk management required by the Annex A supplier-relationship controls."
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-f1",
+     "question": "Do I need a separate template for every vendor?",
+     "answer": "No. One template assesses multiple vendors. You complete a questionnaire and rating sheet for each supplier and can compare them side by side."
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-f2",
+     "question": "What format is the file?",
+     "answer": "It is an Excel (.xlsx) workbook with a questionnaire and a rating sheet. It opens in Microsoft Excel and LibreOffice and is delivered by secure instant download after a one-time ZAR payment."
+    },
+    {
+     "id": "t-iso-27001-vendor-assessment-template-f3",
+     "question": "How often should I re-assess vendors?",
+     "answer": "Best practice is to assess at onboarding and at least annually, or after a significant change such as a breach, a major service change, or a new processor. The template is designed to support repeat assessments."
+    }
+   ]
+  }
+ ]
+}
