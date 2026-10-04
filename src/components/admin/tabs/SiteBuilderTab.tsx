@@ -38,10 +38,10 @@ function move<T>(list: T[], i: number, dir: -1 | 1): T[] {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div>
+    <label className="block">
       <FieldLabel>{label}</FieldLabel>
       {children}
-    </div>
+    </label>
   );
 }
 
