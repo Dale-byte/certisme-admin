@@ -19,12 +19,13 @@ import {
 import { FieldLabel, InlineError, Loading, NativeSelect, PageHeader, Panel } from "../primitives";
 import { cn } from "@/lib/utils";
 
-type View = "pages" | "navigation" | "branding" | "text" | "history";
+type View = "pages" | "navigation" | "branding" | "text" | "editorial" | "history";
 const VIEWS: { id: View; label: string }[] = [
   { id: "pages", label: "Pages" },
   { id: "navigation", label: "Navigation & footer" },
   { id: "branding", label: "Branding" },
   { id: "text", label: "Site-wide text" },
+  { id: "editorial", label: "Guides & templates" },
   { id: "history", label: "History" },
 ];
 
@@ -155,6 +156,7 @@ export function SiteBuilderTab() {
       {view === "navigation" ? <NavigationView content={draft} update={update} /> : null}
       {view === "branding" ? <BrandingView content={draft} update={update} /> : null}
       {view === "text" ? <TextView content={draft} update={update} /> : null}
+      {view === "editorial" ? <EditorialView content={draft} update={update} /> : null}
       {view === "history" ? (
         <HistoryView
           onRestored={() => {
@@ -486,6 +488,95 @@ function TextView({ content, update }: ViewProps) {
     </div>
   );
 }
+
+function EditorialView({ content, update }: ViewProps) {
+  const [kind, setKind] = useState<"guides" | "templates">("guides");
+  const [sel, setSel] = useState(0);
+  const list = content[kind];
+  const p = list[sel];
+  const edit = (fn: (x: (typeof list)[number]) => void) => update((c) => { const x = c[kind][sel]; if (x) fn(x); });
+  const base = kind === "guides" ? "/guides/" : "/templates/";
+  return (
+    <div className="flex flex-col gap-5">
+      <Panel>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Type">
+            <NativeSelect value={kind} onChange={(e) => { setKind(e.target.value as "guides" | "templates"); setSel(0); }}>
+              <option value="guides">Guide pages</option>
+              <option value="templates">Template pages</option>
+            </NativeSelect>
+          </Field>
+          <Field label="Page">
+            <NativeSelect value={String(sel)} onChange={(e) => setSel(Number(e.target.value))}>
+              {list.map((x, i) => <option key={x.id} value={i}>{x.h1 || x.id}</option>)}
+            </NativeSelect>
+          </Field>
+        </div>
+      </Panel>
+      {p ? (
+        <>
+          <Panel>
+            <p className="mb-3 text-sm text-slate">Address: {base}{p.id}</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Badge"><Input value={p.badge} onChange={(e) => edit((x) => { x.badge = e.target.value; })} /></Field>
+              <Field label="Main heading"><Input value={p.h1} onChange={(e) => edit((x) => { x.h1 = e.target.value; })} /></Field>
+              <Field label="Browser title"><Input value={p.metaTitle} onChange={(e) => edit((x) => { x.metaTitle = e.target.value; })} /></Field>
+              <Field label="Search description"><Input value={p.metaDescription} onChange={(e) => edit((x) => { x.metaDescription = e.target.value; })} /></Field>
+              <div className="sm:col-span-2">
+                <Field label="Introduction (blank line between paragraphs)">
+                  <Textarea rows={5} value={p.intro.join("\n\n")} onChange={(e) => edit((x) => { x.intro = e.target.value.split(/\n{2,}/); })} />
+                </Field>
+              </div>
+            </div>
+          </Panel>
+          <Panel>
+            <h2 className="mb-3 font-semibold text-charcoal">Sections</h2>
+            <div className="flex flex-col gap-3">
+              {p.sections.map((s, i) => (
+                <div key={s.id} className="border border-border p-3">
+                  <div className="mb-2 flex justify-end">
+                    <Reorder
+                      onUp={() => edit((x) => { x.sections = move(x.sections, i, -1); })}
+                      onDown={() => edit((x) => { x.sections = move(x.sections, i, 1); })}
+                      onRemove={() => edit((x) => { x.sections.splice(i, 1); })}
+                    />
+                  </div>
+                  <Input placeholder="Heading" value={s.heading} onChange={(e) => edit((x) => { x.sections[i]!.heading = e.target.value; })} />
+                  <Textarea className="mt-2" rows={5} placeholder="Paragraphs (blank line between)" value={s.paragraphs.join("\n\n")} onChange={(e) => edit((x) => { x.sections[i]!.paragraphs = e.target.value.split(/\n{2,}/); })} />
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="self-start" onClick={() => edit((x) => { x.sections.push({ id: newId("sec"), heading: "", paragraphs: [] }); })}>
+                <Plus className="size-4" /> Add section
+              </Button>
+            </div>
+          </Panel>
+          <Panel>
+            <h2 className="mb-3 font-semibold text-charcoal">Questions and answers</h2>
+            <div className="flex flex-col gap-3">
+              {p.faqs.map((f, i) => (
+                <div key={f.id} className="border border-border p-3">
+                  <div className="mb-2 flex justify-end">
+                    <Reorder
+                      onUp={() => edit((x) => { x.faqs = move(x.faqs, i, -1); })}
+                      onDown={() => edit((x) => { x.faqs = move(x.faqs, i, 1); })}
+                      onRemove={() => edit((x) => { x.faqs.splice(i, 1); })}
+                    />
+                  </div>
+                  <Input placeholder="Question" value={f.question} onChange={(e) => edit((x) => { x.faqs[i]!.question = e.target.value; })} />
+                  <Textarea className="mt-2" rows={2} placeholder="Answer" value={f.answer} onChange={(e) => edit((x) => { x.faqs[i]!.answer = e.target.value; })} />
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="self-start" onClick={() => edit((x) => { x.faqs.push({ id: newId("faq"), question: "", answer: "" }); })}>
+                <Plus className="size-4" /> Add question
+              </Button>
+            </div>
+          </Panel>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 
 function HistoryView({ onRestored }: { onRestored: () => void }) {
   const { token } = useAuth();
