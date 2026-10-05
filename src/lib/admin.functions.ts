@@ -105,6 +105,8 @@ export const adminUpload = createServerFn({ method: "POST" })
     try {
       repo.requireAuth(token);
       if (!(file instanceof File)) throw new Error("No file was received.");
+      if (kind === "site-image")
+        return await repo.uploadSiteImage(file.name, Buffer.from(await file.arrayBuffer()));
       if (!productId) throw new Error("Choose a product first.");
       const bytes = Buffer.from(await file.arrayBuffer());
       if (kind === "image") return await repo.uploadImage(productId, file.name, bytes);

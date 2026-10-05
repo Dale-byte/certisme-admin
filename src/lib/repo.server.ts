@@ -342,6 +342,18 @@ export async function uploadImage(productId: string, fileName: string, data: Buf
   return { ok: true as const, commitUrl };
 }
 
+/** Page-section image; served by the storefront at /site-images/<name>. */
+export async function uploadSiteImage(fileName: string, data: Buffer) {
+  if (data.length === 0) throw new Error("The file is empty.");
+  if (data.length > 5 * 1024 * 1024) throw new Error("Images are limited to 5 MB.");
+  const ext = (fileName.split(".").pop() ?? "").toLowerCase();
+  if (!IMG_EXT.includes(ext)) throw new Error("Images must be .png, .jpg or .webp.");
+  const base = fileName.slice(0, -(ext.length + 1)).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "image";
+  const name = `${base}-${Date.now().toString(36)}.${ext}`;
+  const commitUrl = await writeFile(`tools/certisme/src/site-images/${name}`, data, `Upload site image ${name}`);
+  return { ok: true as const, commitUrl, name };
+}
+
 // ── Settings ────────────────────────────────────────────────────────────────
 
 export async function getSettings() {
