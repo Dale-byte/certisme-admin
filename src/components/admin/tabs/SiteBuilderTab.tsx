@@ -344,15 +344,15 @@ function SectionImage({ section: s, onChange }: { section: SiteSection; onChange
   const [busy, setBusy] = useState(false);
   const pick = async (file: File | undefined) => {
     if (!file) return;
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) return toast.error("Only PNG, JPG and WebP images can be used.");
-    if (file.size > 5 * 1024 * 1024) return toast.error("That image is larger than 5 MB.");
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { toast.error("Only PNG, JPG and WebP images can be used."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("That image is larger than 5 MB."); return; }
     setBusy(true);
     try {
       const form = new FormData();
       form.set("token", token ?? "");
       form.set("kind", "site-image");
       form.set("file", file, file.name);
-      const res = (await adminUpload({ data: form })) as { name: string };
+      const res = (await adminUpload({ data: form })) as unknown as { name: string };
       onChange((x) => { x.image = res.name; });
       toast.success("Image uploaded", { description: "Save draft or publish to use it on the page." });
     } catch (err) {

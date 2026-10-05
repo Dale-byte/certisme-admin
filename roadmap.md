@@ -6,5 +6,5 @@
 - [x] Guides & templates editing (verified signed in, draft save works).
 - [x] Make the storefront generator consume published editor content.
 - [x] Verify sign-in, editing, draft save, and responsive layouts.
-- [ ] Image picking for page sections.
+- [x] Image picking for page sections.
 - [ ] Add Guides & templates to the implementation guide.
