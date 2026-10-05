@@ -5,7 +5,8 @@ import { ArrowDown, ArrowUp, Copy, Plus, RotateCcw, Save, Trash2, Upload } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { apiRequest, errorMessage } from "@/lib/api";
+import { apiRequest, errorMessage, SITE_BASE_URL } from "@/lib/api";
+import { adminUpload } from "@/lib/admin.functions";
 import { useAuth } from "@/lib/auth";
 import {
   SECTION_LABELS,
@@ -329,6 +330,55 @@ function SectionForm({ section: s, onChange }: { section: SiteSection; onChange:
           </Field>
         </div>
       ) : null}
+      {s.type === "hero" || s.type === "cta" || s.type === "rich-text" ? (
+        <div className="sm:col-span-2">
+          <SectionImage section={s} onChange={onChange} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function SectionImage({ section: s, onChange }: { section: SiteSection; onChange: (fn: (s: SiteSection) => void) => void }) {
+  const { token } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const pick = async (file: File | undefined) => {
+    if (!file) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { toast.error("Only PNG, JPG and WebP images can be used."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("That image is larger than 5 MB."); return; }
+    setBusy(true);
+    try {
+      const form = new FormData();
+      form.set("token", token ?? "");
+      form.set("kind", "site-image");
+      form.set("file", file, file.name);
+      const res = (await adminUpload({ data: form })) as unknown as { name: string };
+      onChange((x) => { x.image = res.name; });
+      toast.success("Image uploaded", { description: "Save draft or publish to use it on the page." });
+    } catch (err) {
+      toast.error("Upload failed", { description: errorMessage(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="grid gap-3 border border-border bg-bg-alt p-3 sm:grid-cols-[160px_1fr]">
+      <div className="flex aspect-video items-center justify-center border border-border bg-background text-xs text-slate">
+        {s.image ? <img src={`${SITE_BASE_URL}/site-images/${s.image}`} alt={s.image_alt ?? ""} className="size-full object-contain" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : "No image"}
+      </div>
+      <div className="space-y-2">
+        <Field label="Section image (PNG, JPG or WebP, up to 5 MB)">
+          <input type="file" accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} className="w-full text-sm" />
+        </Field>
+        {busy ? <p className="text-xs text-slate">Uploading…</p> : null}
+        {s.image ? (
+          <>
+            <p className="text-xs text-slate">{s.image} · preview appears after the next publish.</p>
+            <Field label="Image description (for screen readers and search)"><Input value={s.image_alt ?? ""} onChange={(e) => onChange((x) => { x.image_alt = e.target.value || undefined; })} /></Field>
+            <Button variant="outline" size="sm" onClick={() => onChange((x) => { x.image = undefined; x.image_alt = undefined; })}>Remove image</Button>
+          </>
+        ) : null}
+      </div>
     </div>
   );
 }

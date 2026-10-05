@@ -17,6 +17,9 @@ export type SiteSection = {
   button_label?: string | undefined;
   button_href?: string | undefined;
   items?: string[] | undefined;
+  /** File name under the storefront's /site-images/ folder. */
+  image?: string | undefined;
+  image_alt?: string | undefined;
 };
 
 export type SitePage = {
