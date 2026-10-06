@@ -172,5 +172,6 @@ required. Optionally set `VITE_SITE_BASE_URL` if the live storefront moves.
 - **Publish** validates, writes the live file, removes the draft, and the normal GitHub → Cloudflare workflow deploys it.
 - **History** lists earlier published versions; restoring loads one into the draft (no history is rewritten).
 - The storefront generator (`build-catalog.ts`) reads the live file when present and falls back to its built-in wording otherwise. All text is HTML-escaped; links are limited to https, mailto, `/` and `#`.
-- Editable: pages and sections, header/footer links, footer text, logo text, colours, font, spacing, corners, site-wide labels, FAQ, 404 page, page SEO.
-- Not yet editable: guide pages, template pages, page images.
+- Editable: pages and sections, header links, the grouped bottom navigation and its heading, additional footer links, footer text, logo text, colours, font, spacing, corners, site-wide labels, FAQ, 404 page and page SEO.
+- **Guides & templates** edits each editorial page's badge, heading, browser title, search description, introduction, text sections and FAQs. Published changes also update the matching template names used elsewhere in the storefront.
+- Hero, text and call-to-action sections can upload a page image (PNG, JPG or WebP, up to 5 MB), set its alternative text or remove it. Uploaded files are committed under `tools/certisme/src/site-images/`.

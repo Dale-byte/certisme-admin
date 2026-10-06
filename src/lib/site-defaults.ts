@@ -24,6 +24,14 @@ export function defaultSiteContent(siteName: string): SiteContent {
       tagline: "Compliance documentation for SMEs",
       legal: `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`,
       payment_note: `Payments processed securely by PayFast. ${siteName} does not store payment card information.`,
+      bottom_navigation: {
+        heading: "ISO 27001 templates",
+        links: [
+          { id: "footer-risk-assessment", label: "ISO 27001 Risk Assessment Template XLS", href: "/templates/iso-27001-risk-assessment-template" },
+          { id: "footer-applicability", label: "Statement of Applicability Template Excel", href: "/templates/statement-of-applicability-template" },
+          { id: "footer-vendor-assessment", label: "ISO 27001 vendor assessment template", href: "/templates/iso-27001-vendor-assessment-template" },
+        ],
+      },
       links: [],
     },
     globals: {

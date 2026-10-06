@@ -406,7 +406,14 @@ function PagePreview({ page, content }: { page: SitePage; content: SiteContent }
             {s.button_label ? <span className="mt-3 inline-block bg-coral px-3 py-1.5 text-xs font-semibold text-primary-foreground">{s.button_label}</span> : null}
           </div>
         ))}
-        <div className="bg-bg-alt px-5 py-4 text-xs text-slate">{content.footer.tagline}<br />{content.footer.legal}</div>
+        <div className="bg-bg-alt px-5 py-4 text-xs text-slate">
+          <p>{content.footer.tagline}</p>
+          {content.footer.bottom_navigation.heading ? <p className="mt-3 font-semibold text-charcoal">{content.footer.bottom_navigation.heading}</p> : null}
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+            {content.footer.bottom_navigation.links.map((link) => <span key={link.id}>{link.label}</span>)}
+          </div>
+          <p className="mt-3">{content.footer.legal}</p>
+        </div>
       </div>
     </div>
   );
@@ -443,6 +450,14 @@ function NavigationView({ content, update }: ViewProps) {
           <Field label="Legal line"><Input value={content.footer.legal} onChange={(e) => update((c) => { c.footer.legal = e.target.value; })} /></Field>
           <Field label="Payment note"><Input value={content.footer.payment_note} onChange={(e) => update((c) => { c.footer.payment_note = e.target.value; })} /></Field>
         </div>
+        <div className="mb-5 border-t border-border pt-4">
+          <h3 className="mb-3 text-sm font-semibold text-charcoal">Bottom navigation</h3>
+          <div className="mb-3">
+            <Field label="Group heading"><Input value={content.footer.bottom_navigation.heading} onChange={(e) => update((c) => { c.footer.bottom_navigation.heading = e.target.value; })} /></Field>
+          </div>
+          <LinksEditor links={content.footer.bottom_navigation.links} onChange={(links) => update((c) => { c.footer.bottom_navigation.links = links; })} />
+        </div>
+        <h3 className="mb-3 border-t border-border pt-4 text-sm font-semibold text-charcoal">Additional footer links</h3>
         <LinksEditor links={content.footer.links} onChange={(l) => update((c) => { c.footer.links = l; })} />
       </Panel>
     </div>
