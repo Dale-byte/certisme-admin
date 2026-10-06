@@ -7,4 +7,5 @@
 - [x] Make the storefront generator consume published editor content.
 - [x] Verify sign-in, editing, draft save, and responsive layouts.
 - [x] Image picking for page sections.
-- [ ] Add Guides & templates to the implementation guide.
+- [x] Add Guides & templates and section images to the implementation guide.
+- [x] Make the storefront's grouped bottom navigation fully editable.

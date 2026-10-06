@@ -498,6 +498,16 @@ export async function getSiteContent() {
   >;
   if (!content.guides?.length) content.guides = structuredClone(editorial.guides);
   if (!content.templates?.length) content.templates = structuredClone(editorial.templates);
+  if (!content.footer.bottom_navigation) {
+    content.footer.bottom_navigation = {
+      heading: "ISO 27001 templates",
+      links: content.templates.map((template) => ({
+        id: `footer-${template.id}`,
+        label: template.h1,
+        href: `/templates/${template.id}`,
+      })),
+    };
+  }
   return { content, hasDraft: !!draft, hasLive: !!live };
 }
 

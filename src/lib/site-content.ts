@@ -67,6 +67,10 @@ export type SiteContent = {
     tagline: string;
     legal: string;
     payment_note: string;
+    bottom_navigation: {
+      heading: string;
+      links: SiteLink[];
+    };
     links: SiteLink[];
   };
   globals: {
