@@ -215,7 +215,7 @@ export function DocumentsTab() {
           ) : null}
           {products.data && products.data.length > 0 ? (
             <div className="w-full overflow-x-auto">
-              <table className="w-full min-w-[880px] text-sm">
+              <table className="w-full min-w-[760px] text-sm">
                 <thead className="bg-bg-alt">
                   <tr className="text-left">
                     <th className="label-caps px-4 py-3">Product</th>
@@ -223,7 +223,7 @@ export function DocumentsTab() {
                     <th className="label-caps px-4 py-3">Storage location</th>
                     <th className="label-caps px-4 py-3">Size</th>
                     <th className="label-caps px-4 py-3">Status</th>
-                    <th className="label-caps hidden px-4 py-3 sm:table-cell"><span className="sr-only">Download</span></th>
+                    <th className="hidden"><span className="sr-only">Download</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -234,7 +234,7 @@ export function DocumentsTab() {
                         <td className="px-4 py-3 font-medium text-charcoal">
                           {p.name}
                           {status?.present ? (
-                            <Button size="sm" variant="outline" className="mt-2 flex sm:hidden" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
+                            <Button size="sm" variant="outline" className="mt-2 flex" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
                               <Download className="size-4" aria-hidden />
                               {downloading === p.id ? "Downloading…" : "Download"}
                             </Button>
@@ -256,7 +256,7 @@ export function DocumentsTab() {
                             </span>
                           )}
                         </td>
-                        <td className="hidden px-4 py-3 text-right sm:table-cell">
+                        <td className="hidden">
                           {status?.present ? (
                             <Button size="sm" variant="outline" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
                               <Download className="size-4" aria-hidden />
