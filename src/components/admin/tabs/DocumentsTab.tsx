@@ -16,7 +16,7 @@ import {
   Panel,
   formatBytes,
 } from "../primitives";
-import { CheckCircle2, FileUp, MinusCircle } from "lucide-react";
+import { CheckCircle2, Download, FileUp, MinusCircle } from "lucide-react";
 
 const MAX_BYTES = 25 * 1024 * 1024;
 const ALLOWED = [".docx", ".xlsx", ".pdf"];
@@ -95,6 +95,32 @@ export function DocumentsTab() {
       toast.error("Upload failed", { description: errorMessage(err) });
     } finally {
       setProgress(null);
+    }
+  };
+
+  const [downloading, setDownloading] = useState<string | null>(null);
+  const download = async (id: string) => {
+    setDownloading(id);
+    try {
+      const f = await apiRequest<{ name: string; type: string; base64: string }>(
+        `/documents/${encodeURIComponent(id)}/download`,
+        { token: token! },
+      );
+      const bin = atob(f.base64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([bytes], { type: f.type }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = f.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } catch (err) {
+      toast.error("Download failed", { description: errorMessage(err) });
+    } finally {
+      setDownloading(null);
     }
   };
 
@@ -189,7 +215,7 @@ export function DocumentsTab() {
           ) : null}
           {products.data && products.data.length > 0 ? (
             <div className="w-full overflow-x-auto">
-              <table className="w-full min-w-[760px] text-sm">
+              <table className="w-full min-w-[880px] text-sm">
                 <thead className="bg-bg-alt">
                   <tr className="text-left">
                     <th className="label-caps px-4 py-3">Product</th>
@@ -197,6 +223,7 @@ export function DocumentsTab() {
                     <th className="label-caps px-4 py-3">Storage location</th>
                     <th className="label-caps px-4 py-3">Size</th>
                     <th className="label-caps px-4 py-3">Status</th>
+                    <th className="label-caps px-4 py-3"><span className="sr-only">Download</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -220,6 +247,14 @@ export function DocumentsTab() {
                               Missing
                             </span>
                           )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {status?.present ? (
+                            <Button size="sm" variant="outline" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
+                              <Download className="size-4" aria-hidden />
+                              {downloading === p.id ? "Downloading…" : "Download"}
+                            </Button>
+                          ) : null}
                         </td>
                       </tr>
                     );

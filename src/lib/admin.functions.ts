@@ -63,6 +63,8 @@ export const adminCall = createServerFn({ method: "POST" })
       }
 
       if (path === "/documents" && method === "GET") return await repo.listDocuments();
+      if (path.startsWith("/documents/") && path.endsWith("/download"))
+        return await repo.downloadDocument(decodeURIComponent(path.slice("/documents/".length, -"/download".length)));
 
       if (path === "/settings") {
         if (method === "GET") return await repo.getSettings();

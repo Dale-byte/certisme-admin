@@ -371,6 +371,26 @@ export async function uploadDocument(productId: string, fileName: string, data: 
   return { ok: true as const, location: `${R2_BUCKET}/${key}` };
 }
 
+export async function downloadDocument(productId: string) {
+  const { catalog } = await readCatalog();
+  const product = (catalog.products ?? []).find((p) => p.id === productId);
+  if (!product?.file) throw new Error("not-found");
+  const key = `${R2_PREFIX}${product.file}`;
+  const res = await fetch(
+    `${CF_API}/accounts/${R2_ACCOUNT}/r2/buckets/${R2_BUCKET}/objects/${key.split("/").map(encodeURIComponent).join("/")}`,
+    { headers: cfHeaders() },
+  );
+  if (res.status === 404) throw new Error("not-found");
+  if (!res.ok) await cfFail(res, "document download");
+  const bytes = Buffer.from(await res.arrayBuffer());
+  const ext = (product.file.split(".").pop() ?? "").toLowerCase();
+  return {
+    name: product.file.split("/").pop() ?? `${productId}.${ext}`,
+    type: DOC_TYPES[ext] ?? "application/octet-stream",
+    base64: bytes.toString("base64"),
+  };
+}
+
 export async function uploadImage(productId: string, fileName: string, data: Buffer) {
   if (data.length === 0) throw new Error("The file is empty.");
   if (data.length > 5 * 1024 * 1024) throw new Error("Images are limited to 5 MB.");

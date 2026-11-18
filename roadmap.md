@@ -12,3 +12,4 @@
 - [x] Documents tab reads and uploads product documents in Cloudflare R2.
 - [x] Any number of footer link groups, each with its own heading.
 - [x] Template pages: choose the product sold there and upload its document, showing where it lives and appears.
+- [x] Download buttons on the Documents page (from Cloudflare R2).
