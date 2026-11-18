@@ -153,7 +153,7 @@ export function ProductsTab() {
                   <th className="label-caps px-4 py-3">Framework</th>
                   <th className="label-caps px-4 py-3">Price</th>
                   <th className="label-caps px-4 py-3">Format</th>
-                  <th className="label-caps px-4 py-3 text-right">Actions</th>
+                  <th className="label-caps sticky right-0 bg-bg-alt px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -173,7 +173,7 @@ export function ProductsTab() {
                       {formatZar(product.price)}
                     </td>
                     <td className="px-4 py-3 uppercase text-slate">{product.format}</td>
-                    <td className="px-4 py-3">
+                    <td className="sticky right-0 bg-card px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="outline"
