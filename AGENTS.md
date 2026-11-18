@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Storefront-wide edits use a versioned `tools/certisme/data/site-content.yaml`; drafts are separate from live content so ordinary saves cannot affect production.
+- Product documents are read/written in Cloudflare R2 via the Cloudflare connector (repo.server.ts); GitHub holds only the catalog file path — why: R2 is where /download serves files from.

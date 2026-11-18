@@ -11,7 +11,6 @@ const OWNER = "Dale-byte";
 const REPO = "CertiSME";
 const BRANCH = "main";
 const CATALOG_PATH = "tools/certisme/data/catalog.yaml";
-const DOCUMENTS_DIR = "tools/certisme/documents";
 const IMAGES_DIR = "tools/certisme/src/product-images";
 const DEPLOY_WORKFLOW = "deploy-catalog.yml";
 
@@ -272,33 +271,74 @@ export async function deleteProduct(id: string) {
 
 // ── Documents & images ──────────────────────────────────────────────────────
 
+// Product documents live in Cloudflare R2 (bucket below), under docs/<catalog file>.
+const R2_ACCOUNT = "57db289d5166a7f0226b1ea48f97c630";
+export const R2_BUCKET = "certisme-doc";
+export const R2_PREFIX = "docs/";
+const CF_API = "https://connector-gateway.lovable.dev/cloudflare/client/v4";
+
+function cfHeaders(): Record<string, string> {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const cfKey = process.env["CLOUDFLARE_API_KEY"];
+  if (!lovableKey || !cfKey) throw new Error("The Cloudflare connection is not set up yet.");
+  return { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": cfKey };
+}
+
+async function cfFail(res: Response, what: string): Promise<never> {
+  const text = await res.text();
+  console.error(`Cloudflare ${what} failed [${res.status}]: ${text.slice(0, 300)}`);
+  if (res.status === 403)
+    throw new Error("Cloudflare refused access to document storage. The Cloudflare token needs 'Workers R2 Storage' permission.");
+  throw new Error(`Cloudflare ${what} failed (${res.status}).`);
+}
+
+async function listR2Objects(): Promise<Map<string, { size: number; last_modified?: string }>> {
+  const out = new Map<string, { size: number; last_modified?: string }>();
+  let cursor = "";
+  for (let i = 0; i < 20; i++) {
+    const qs = new URLSearchParams({ prefix: R2_PREFIX, per_page: "1000" });
+    if (cursor) qs.set("cursor", cursor);
+    const res = await fetch(`${CF_API}/accounts/${R2_ACCOUNT}/r2/buckets/${R2_BUCKET}/objects?${qs}`, { headers: cfHeaders() });
+    if (!res.ok) await cfFail(res, "document listing");
+    const json = (await res.json()) as {
+      success: boolean;
+      errors?: { message: string }[];
+      result: { key: string; size: number; last_modified?: string }[];
+      result_info?: { cursor?: string; is_truncated?: boolean | string };
+    };
+    if (!json.success) throw new Error(json.errors?.[0]?.message ?? "Cloudflare could not list documents.");
+    for (const o of json.result) out.set(o.key, { size: o.size, ...(o.last_modified ? { last_modified: o.last_modified } : {}) });
+    const next = json.result_info?.cursor;
+    const truncated = String(json.result_info?.is_truncated) === "true";
+    if (!next || !truncated) break;
+    cursor = next;
+  }
+  return out;
+}
+
 export async function listDocuments() {
-  const [{ catalog }, tree] = await Promise.all([
-    readCatalog(),
-    gh<{ tree: { path: string; size?: number; type: string }[] }>(
-      `/repos/${OWNER}/${REPO}/git/trees/${BRANCH}?recursive=1`,
-    ),
-  ]);
-  const blobs = new Map(
-    tree.tree
-      .filter((t) => t.type === "blob" && t.path.startsWith(`${DOCUMENTS_DIR}/`))
-      .map((t) => [t.path, t.size ?? 0]),
-  );
+  const [{ catalog }, objects] = await Promise.all([readCatalog(), listR2Objects()]);
   return (catalog.products ?? []).map((p) => {
-    const path = `${DOCUMENTS_DIR}/${p.file}`;
-    const present = blobs.has(path);
+    const key = `${R2_PREFIX}${p.file}`;
+    const obj = objects.get(key);
     return {
       product_id: p.id,
       file: p.file,
-      size: present ? blobs.get(path) : undefined,
-      uploaded_at: undefined,
-      present,
+      location: `${R2_BUCKET}/${key}`,
+      size: obj?.size,
+      uploaded_at: obj?.last_modified,
+      present: !!obj,
     };
   });
 }
 
 const DOC_EXT = ["docx", "xlsx", "pdf"];
 const IMG_EXT = ["png", "jpg", "jpeg", "webp"];
+const DOC_TYPES: Record<string, string> = {
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  pdf: "application/pdf",
+};
 
 export async function uploadDocument(productId: string, fileName: string, data: Buffer) {
   if (data.length === 0) throw new Error("The file is empty.");
@@ -306,17 +346,19 @@ export async function uploadDocument(productId: string, fileName: string, data: 
   const ext = (fileName.split(".").pop() ?? "").toLowerCase();
   if (!DOC_EXT.includes(ext)) throw new Error("Documents must be .docx, .xlsx or .pdf.");
 
-  const { catalog, sha } = await readCatalog();
+  const { catalog } = await readCatalog();
   const product = (catalog.products ?? []).find((p) => p.id === productId);
   if (!product) throw new Error(`Product "${productId}" was not found.`);
 
-  const dir = product.file.includes("/") ? product.file.slice(0, product.file.lastIndexOf("/")) : "";
-  const newFile = `${dir ? `${dir}/` : ""}${productId}.${ext}`;
-  const commitUrl = await writeFile(
-    `${DOCUMENTS_DIR}/${newFile}`,
-    data,
-    `Upload document for ${productId}`,
+  // Replace the existing file in place; only the extension changes if the type differs.
+  const current = product.file || `${product.framework}/${productId}.${ext}`;
+  const newFile = current.replace(/\.[a-z0-9]+$/i, "") + `.${ext}`;
+  const key = `${R2_PREFIX}${newFile}`;
+  const res = await fetch(
+    `${CF_API}/accounts/${R2_ACCOUNT}/r2/buckets/${R2_BUCKET}/objects/${key.split("/").map(encodeURIComponent).join("/")}`,
+    { method: "PUT", headers: { ...cfHeaders(), "Content-Type": DOC_TYPES[ext]! }, body: new Uint8Array(data) },
   );
+  if (!res.ok) await cfFail(res, "document upload");
 
   if (newFile !== product.file) {
     const fresh = await readCatalog();
@@ -326,7 +368,7 @@ export async function uploadDocument(productId: string, fileName: string, data: 
       await writeCatalog(fresh.catalog, fresh.sha, `Point ${productId} at uploaded document`);
     }
   }
-  return { ok: true as const, commitUrl };
+  return { ok: true as const, location: `${R2_BUCKET}/${key}` };
 }
 
 export async function uploadImage(productId: string, fileName: string, data: Buffer) {
@@ -507,6 +549,20 @@ export async function getSiteContent() {
         href: `/templates/${template.id}`,
       })),
     };
+  }
+  if (!content.footer.bottom_groups?.length) {
+    content.footer.bottom_groups = [
+      { id: "group-templates", ...structuredClone(content.footer.bottom_navigation) },
+      {
+        id: "group-standards",
+        heading: "Standards & references",
+        links: [
+          { id: "std-nist", label: "NIST AI Risk Management Framework (AI 100-1)", href: "https://www.nist.gov/itl/ai-risk-management-framework", external: true },
+          { id: "std-27001", label: "ISO/IEC 27001:2022 (ISO)", href: "https://www.iso.org/standard/82875.html", external: true },
+          { id: "std-42001", label: "ISO/IEC 42001:2023 (ISO)", href: "https://www.iso.org/standard/81230.html", external: true },
+        ],
+      },
+    ];
   }
   return { content, hasDraft: !!draft, hasLive: !!live };
 }

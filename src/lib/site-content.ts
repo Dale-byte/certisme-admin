@@ -5,6 +5,7 @@ export type SiteLink = {
   external?: boolean | undefined;
 };
 
+export type FooterGroup = { id: string; heading: string; links: SiteLink[] };
 export type FaqItem = { id: string; question: string; answer: string };
 export type TextBlock = { id: string; heading: string; paragraphs: string[] };
 
@@ -72,6 +73,8 @@ export type SiteContent = {
       links: SiteLink[];
     };
     links: SiteLink[];
+    /** Footer link columns, each with its own heading. Replaces bottom_navigation on the live site. */
+    bottom_groups: FooterGroup[];
   };
   globals: {
     product_includes_label: string;

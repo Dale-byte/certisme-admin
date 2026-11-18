@@ -33,6 +33,7 @@ export function defaultSiteContent(siteName: string): SiteContent {
         ],
       },
       links: [],
+      bottom_groups: [],
     },
     globals: {
       product_includes_label: "What's included",

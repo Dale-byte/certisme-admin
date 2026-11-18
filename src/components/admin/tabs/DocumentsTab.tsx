@@ -88,7 +88,7 @@ export function DocumentsTab() {
       if (fileInput.current) fileInput.current.value = "";
       void qc.invalidateQueries({ queryKey: ["documents"] });
       toast.success("Document uploaded", {
-        description: "Publish on the Deploy tab to make it downloadable.",
+        description: "Customers receive the new file from their next purchase.",
       });
     } catch (err) {
       setError(errorMessage(err));
@@ -104,7 +104,7 @@ export function DocumentsTab() {
     <div>
       <PageHeader
         title="Documents"
-        description="Upload the deliverable file customers download after purchase. Maximum size 25 MB."
+        description="Files customers download after purchase, stored in Cloudflare R2 (certisme-doc). Uploads replace the live file straight away. Maximum size 25 MB."
       />
 
       <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
@@ -170,7 +170,7 @@ export function DocumentsTab() {
         <Panel className="p-0">
           <div className="border-b border-border px-4 py-3">
             <h2 className="text-sm font-bold text-charcoal">Upload status</h2>
-            <p className="text-xs text-slate">Which products already have a document in the repo.</p>
+            <p className="text-xs text-slate">Which products have a document in Cloudflare R2 storage.</p>
           </div>
           {products.isLoading || documents.isLoading ? (
             <div className="px-4">
@@ -189,11 +189,12 @@ export function DocumentsTab() {
           ) : null}
           {products.data && products.data.length > 0 ? (
             <div className="w-full overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
+              <table className="w-full min-w-[760px] text-sm">
                 <thead className="bg-bg-alt">
                   <tr className="text-left">
                     <th className="label-caps px-4 py-3">Product</th>
                     <th className="label-caps px-4 py-3">Document</th>
+                    <th className="label-caps px-4 py-3">Storage location</th>
                     <th className="label-caps px-4 py-3">Size</th>
                     <th className="label-caps px-4 py-3">Status</th>
                   </tr>
@@ -205,6 +206,7 @@ export function DocumentsTab() {
                       <tr key={p.id} className="border-t border-border">
                         <td className="px-4 py-3 font-medium text-charcoal">{p.name}</td>
                         <td className="px-4 py-3 text-slate">{status?.file ?? p.file ?? "—"}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-slate">{status?.location ?? "—"}</td>
                         <td className="px-4 py-3 text-slate">{formatBytes(status?.size)}</td>
                         <td className="px-4 py-3">
                           {status?.present ? (

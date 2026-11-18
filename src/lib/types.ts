@@ -20,6 +20,7 @@ export type Product = {
 export type DocumentStatus = {
   product_id: string;
   file?: string | undefined;
+  location?: string | undefined;
   size?: number | undefined;
   uploaded_at?: string | undefined;
   present: boolean;
@@ -55,4 +56,4 @@ export type AuditEntry = {
   url?: string | undefined;
 };
 
-export type { ContentRevision, EditorialPage, FaqItem, SiteContent, SiteLink, SitePage, SiteSection, TextBlock } from "./site-content";
+export type { ContentRevision, EditorialPage, FaqItem, FooterGroup, SiteContent, SiteLink, SitePage, SiteSection, TextBlock } from "./site-content";

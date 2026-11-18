@@ -19,6 +19,7 @@ import {
 } from "@/lib/site-content";
 import { FieldLabel, InlineError, Loading, NativeSelect, PageHeader, Panel } from "../primitives";
 import { cn } from "@/lib/utils";
+import { TemplateDocumentPanel } from "../site/TemplateDocumentPanel";
 
 type View = "pages" | "navigation" | "branding" | "text" | "editorial" | "history";
 const VIEWS: { id: View; label: string }[] = [
@@ -408,9 +409,13 @@ function PagePreview({ page, content }: { page: SitePage; content: SiteContent }
         ))}
         <div className="bg-bg-alt px-5 py-4 text-xs text-slate">
           <p>{content.footer.tagline}</p>
-          {content.footer.bottom_navigation.heading ? <p className="mt-3 font-semibold text-charcoal">{content.footer.bottom_navigation.heading}</p> : null}
-          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
-            {content.footer.bottom_navigation.links.map((link) => <span key={link.id}>{link.label}</span>)}
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {content.footer.bottom_groups.map((g) => (
+              <div key={g.id}>
+                {g.heading ? <p className="font-semibold text-charcoal">{g.heading}</p> : null}
+                <div className="mt-1 flex flex-col gap-1">{g.links.map((link) => <span key={link.id}>{link.label}</span>)}</div>
+              </div>
+            ))}
           </div>
           <p className="mt-3">{content.footer.legal}</p>
         </div>
@@ -451,11 +456,26 @@ function NavigationView({ content, update }: ViewProps) {
           <Field label="Payment note"><Input value={content.footer.payment_note} onChange={(e) => update((c) => { c.footer.payment_note = e.target.value; })} /></Field>
         </div>
         <div className="mb-5 border-t border-border pt-4">
-          <h3 className="mb-3 text-sm font-semibold text-charcoal">Bottom navigation</h3>
-          <div className="mb-3">
-            <Field label="Group heading"><Input value={content.footer.bottom_navigation.heading} onChange={(e) => update((c) => { c.footer.bottom_navigation.heading = e.target.value; })} /></Field>
+          <h3 className="mb-1 text-sm font-semibold text-charcoal">Bottom navigation groups</h3>
+          <p className="mb-3 text-xs text-slate">Each group is a column in the site footer with its own heading.</p>
+          <div className="flex flex-col gap-4">
+            {content.footer.bottom_groups.map((g, gi) => (
+              <div key={g.id} className="border border-border p-3">
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end">
+                  <div className="flex-1"><Field label={`Group ${gi + 1} heading`}><Input value={g.heading} onChange={(e) => update((c) => { c.footer.bottom_groups[gi]!.heading = e.target.value; })} /></Field></div>
+                  <Reorder
+                    onUp={() => update((c) => { c.footer.bottom_groups = move(c.footer.bottom_groups, gi, -1); })}
+                    onDown={() => update((c) => { c.footer.bottom_groups = move(c.footer.bottom_groups, gi, 1); })}
+                    onRemove={() => { if (window.confirm(`Remove the "${g.heading || "untitled"}" group and its links?`)) update((c) => { c.footer.bottom_groups = c.footer.bottom_groups.filter((_, j) => j !== gi); }); }}
+                  />
+                </div>
+                <LinksEditor links={g.links} onChange={(links) => update((c) => { c.footer.bottom_groups[gi]!.links = links; })} />
+              </div>
+            ))}
+            <Button variant="outline" size="sm" className="self-start" onClick={() => update((c) => { c.footer.bottom_groups = [...c.footer.bottom_groups, { id: newId("group"), heading: "New group", links: [] }]; })}>
+              <Plus className="size-4" /> Add group heading
+            </Button>
           </div>
-          <LinksEditor links={content.footer.bottom_navigation.links} onChange={(links) => update((c) => { c.footer.bottom_navigation.links = links; })} />
         </div>
         <h3 className="mb-3 border-t border-border pt-4 text-sm font-semibold text-charcoal">Additional footer links</h3>
         <LinksEditor links={content.footer.links} onChange={(l) => update((c) => { c.footer.links = l; })} />
@@ -594,6 +614,13 @@ function EditorialView({ content, update }: ViewProps) {
               </div>
             </div>
           </Panel>
+          {kind === "templates" ? (
+            <TemplateDocumentPanel
+              templateId={p.id}
+              productId={p.productId}
+              onProductChange={(id) => edit((x) => { if (id) x.productId = id; else delete x.productId; })}
+            />
+          ) : null}
           <Panel>
             <h2 className="mb-3 font-semibold text-charcoal">Sections</h2>
             <div className="flex flex-col gap-3">
