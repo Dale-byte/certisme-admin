@@ -133,7 +133,7 @@ export function DocumentsTab() {
         description="Files customers download after purchase, stored in Cloudflare R2 (certisme-doc). Uploads replace the live file straight away. Maximum size 25 MB."
       />
 
-      <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <Panel className="space-y-4">
           <div>
             <FieldLabel htmlFor="doc-product">Product</FieldLabel>
@@ -223,7 +223,7 @@ export function DocumentsTab() {
                     <th className="label-caps px-4 py-3">Storage location</th>
                     <th className="label-caps px-4 py-3">Size</th>
                     <th className="label-caps px-4 py-3">Status</th>
-                    <th className="label-caps px-4 py-3"><span className="sr-only">Download</span></th>
+                    <th className="label-caps hidden px-4 py-3 sm:table-cell"><span className="sr-only">Download</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -231,7 +231,15 @@ export function DocumentsTab() {
                     const status = statusFor(p.id);
                     return (
                       <tr key={p.id} className="border-t border-border">
-                        <td className="px-4 py-3 font-medium text-charcoal">{p.name}</td>
+                        <td className="px-4 py-3 font-medium text-charcoal">
+                          {p.name}
+                          {status?.present ? (
+                            <Button size="sm" variant="outline" className="mt-2 flex sm:hidden" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
+                              <Download className="size-4" aria-hidden />
+                              {downloading === p.id ? "Downloading…" : "Download"}
+                            </Button>
+                          ) : null}
+                        </td>
                         <td className="px-4 py-3 text-slate">{status?.file ?? p.file ?? "—"}</td>
                         <td className="px-4 py-3 font-mono text-xs text-slate">{status?.location ?? "—"}</td>
                         <td className="px-4 py-3 text-slate">{formatBytes(status?.size)}</td>
@@ -248,7 +256,7 @@ export function DocumentsTab() {
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="hidden px-4 py-3 text-right sm:table-cell">
                           {status?.present ? (
                             <Button size="sm" variant="outline" disabled={downloading === p.id} onClick={() => void download(p.id)} aria-label={`Download ${p.name}`}>
                               <Download className="size-4" aria-hidden />
