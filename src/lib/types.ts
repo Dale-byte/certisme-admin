@@ -56,4 +56,13 @@ export type AuditEntry = {
   url?: string | undefined;
 };
 
+export type LighthouseReport = {
+  url: string;
+  strategy: "mobile" | "desktop";
+  fetched_at: string;
+  scores: Record<"performance" | "seo" | "accessibility" | "best-practices", number | null>;
+  metrics: { id: string; title: string; value: string }[];
+  issues: { id: string; title: string; category: string; score: number | null; savings?: string | undefined }[];
+};
+
 export type { ContentRevision, EditorialPage, FaqItem, FooterGroup, SiteContent, SiteLink, SitePage, SiteSection, TextBlock } from "./site-content";

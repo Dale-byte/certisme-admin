@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import {
   Boxes,
   FileText,
+  Gauge,
   History,
   Image as ImageIcon,
   LayoutGrid,
@@ -23,6 +24,7 @@ export const TABS = [
   { id: "documents", label: "Documents", icon: FileText },
   { id: "images", label: "Images", icon: ImageIcon },
   { id: "settings", label: "Site Settings", icon: Settings },
+  { id: "lighthouse", label: "SEO & Speed", icon: Gauge },
   { id: "deploy", label: "Deploy", icon: Rocket },
   { id: "audit", label: "Audit Log", icon: History },
 ] as const;

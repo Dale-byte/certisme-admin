@@ -13,3 +13,4 @@
 - [x] Any number of footer link groups, each with its own heading.
 - [x] Template pages: choose the product sold there and upload its document, showing where it lives and appears.
 - [x] Download buttons on the Documents page (from Cloudflare R2).
+- [x] SEO & Speed page with Google Lighthouse scores (needs PAGESPEED_API_KEY for reliable checks).

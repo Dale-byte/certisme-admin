@@ -8,6 +8,7 @@ import { SettingsTab } from "./tabs/SettingsTab";
 import { DeployTab } from "./tabs/DeployTab";
 import { AuditTab } from "./tabs/AuditTab";
 import { SiteBuilderTab } from "./tabs/SiteBuilderTab";
+import { LighthouseTab } from "./tabs/LighthouseTab";
 
 export function Dashboard() {
   const [tab, setTab] = useState<TabId>("site");
@@ -20,6 +21,7 @@ export function Dashboard() {
       {tab === "documents" ? <DocumentsTab /> : null}
       {tab === "images" ? <ImagesTab /> : null}
       {tab === "settings" ? <SettingsTab /> : null}
+      {tab === "lighthouse" ? <LighthouseTab /> : null}
       {tab === "deploy" ? <DeployTab /> : null}
       {tab === "audit" ? <AuditTab /> : null}
     </AdminShell>

@@ -630,3 +630,44 @@ export async function restoreRevision(sha: string) {
   const url = await writeFile(CONTENT_DRAFT, Buffer.from(text, "utf8"), `Admin: restore content from ${sha.slice(0, 7)} into draft`);
   return { commit_url: url };
 }
+
+// ── Lighthouse (Google PageSpeed Insights) ──────────────────────────────────
+
+import type { LighthouseReport } from "./types";
+
+const LH_CATS = ["performance", "seo", "accessibility", "best-practices"] as const;
+const LH_METRICS = ["first-contentful-paint", "largest-contentful-paint", "total-blocking-time", "cumulative-layout-shift", "speed-index"];
+
+/** Runs Lighthouse on a live storefront page. Only the storefront's own domain is allowed. */
+export async function runLighthouse(path: string, strategy: "mobile" | "desktop"): Promise<LighthouseReport> {
+  const { site_url } = await getSettings();
+  const base = (site_url || "https://certisme.net").replace(/\/$/, "");
+  const clean = ("/" + String(path || "").replace(/^https?:\/\/[^/]+/i, "").replace(/^\/+/, "")).replace(/\s/g, "");
+  const url = base + clean;
+  const q = new URLSearchParams({ url, strategy: strategy === "desktop" ? "desktop" : "mobile" });
+  for (const c of LH_CATS) q.append("category", c.toUpperCase().replace("-", "_"));
+  const key = process.env["PAGESPEED_API_KEY"];
+  if (key) q.set("key", key);
+  const res = await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${q}`);
+  const json = (await res.json().catch(() => ({}))) as any;
+  if (!res.ok) {
+    if (res.status === 429) throw new Error("Google's free check limit was reached. Wait a minute and try again.");
+    throw new Error(`Google couldn't check ${url}. ${json?.error?.message ?? ""}`.trim());
+  }
+  const lh = json.lighthouseResult ?? {};
+  const audits = lh.audits ?? {};
+  const scores = Object.fromEntries(
+    LH_CATS.map((c) => [c, typeof lh.categories?.[c]?.score === "number" ? Math.round(lh.categories[c].score * 100) : null]),
+  ) as LighthouseReport["scores"];
+  const metrics = LH_METRICS.filter((m) => audits[m]).map((m) => ({ id: m, title: audits[m].title, value: audits[m].displayValue ?? "" }));
+  const issues: LighthouseReport["issues"] = [];
+  for (const c of LH_CATS) {
+    for (const ref of lh.categories?.[c]?.auditRefs ?? []) {
+      const a = audits[ref.id];
+      if (!a || ref.group === "metrics" || a.scoreDisplayMode === "notApplicable" || a.scoreDisplayMode === "informative" || a.scoreDisplayMode === "manual") continue;
+      if (a.score === null || a.score >= 0.9) continue;
+      issues.push({ id: `${c}:${a.id}`, title: a.title, category: c, score: a.score, savings: a.displayValue || undefined });
+    }
+  }
+  return { url, strategy, fetched_at: new Date().toISOString(), scores, metrics, issues };
+}

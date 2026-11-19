@@ -75,6 +75,11 @@ export const adminCall = createServerFn({ method: "POST" })
         return await repo.deploy(String((body as { message?: string })?.message ?? ""));
       if (path === "/deploy/status") return await repo.deployStatus();
 
+      if (path === "/lighthouse" && method === "POST") {
+        const b = (body ?? {}) as { path?: string; strategy?: string };
+        return await repo.runLighthouse(String(b.path ?? "/"), b.strategy === "desktop" ? "desktop" : "mobile");
+      }
+
       if (path === "/audit") return await repo.listCommits();
 
       if (path === "/content" && method === "GET") return await repo.getSiteContent();
