@@ -651,7 +651,7 @@ export async function runLighthouse(path: string, strategy: "mobile" | "desktop"
   const res = await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${q}`);
   const json = (await res.json().catch(() => ({}))) as any;
   if (!res.ok) {
-    if (res.status === 429) throw new Error("Google's free check limit was reached. Wait a minute and try again.");
+    if (res.status === 429) throw new Error(key ? "Google's free check limit was reached. Wait a minute and try again." : "Google needs a free PageSpeed key before it will run checks. Add one to the dashboard's secrets as PAGESPEED_API_KEY.");
     throw new Error(`Google couldn't check ${url}. ${json?.error?.message ?? ""}`.trim());
   }
   const lh = json.lighthouseResult ?? {};
