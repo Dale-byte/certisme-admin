@@ -14,3 +14,4 @@
 - [x] Template pages: choose the product sold there and upload its document, showing where it lives and appears.
 - [x] Download buttons on the Documents page (from Cloudflare R2).
 - [x] SEO & Speed page with Google Lighthouse scores (needs PAGESPEED_API_KEY for reliable checks).
+- [x] Privacy Policy (POPIA) and Refund Policy (no refunds) pages + footer links — saved as draft, awaiting publish.
